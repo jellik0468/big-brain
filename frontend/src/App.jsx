@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import reactLogo from './assets/react.svg';
 import viteLogo from '/vite.svg';
 
 import Login from './components/Login'
 import Register from './components/Register'
+import Dashboard from './components/Dashboard'
 
 import {
     BrowserRouter as Router,
@@ -13,16 +14,16 @@ import {
 } from "react-router-dom"
 
 function App() {
-  
-  return (
-    <Router>
-        <Routes>
-            <Route path="" element={<Login />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-        </Routes>
-    </Router>
-  )
+  	return (
+		<Router>
+			<Routes>
+            	    <Route path="" element={<Login />} />
+            		<Route path="/login" element={<Login/>} />
+            		<Route path="/register" element={<Register />} />
+            		<Route path="/dashboard" element={<Dashboard />} />
+     		</Routes>
+    	</Router>
+  	)
 }
 
 export default App
