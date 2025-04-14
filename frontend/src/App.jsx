@@ -1,29 +1,14 @@
 import { useState, useEffect } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-
-import Login from './components/Login'
-import Register from './components/Register'
-import Dashboard from './components/Dashboard'
-
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Link,
-} from "react-router-dom"
+import { BrowserRouter as Router } from "react-router-dom";
+import AppRoutes from './AppRoutes';
 
 function App() {
-  	return (
-		<Router>
-			<Routes>
-            	    <Route path="" element={<Login />} />
-            		<Route path="/login" element={<Login/>} />
-            		<Route path="/register" element={<Register />} />
-            		<Route path="/dashboard" element={<Dashboard />} />
-     		</Routes>
-    	</Router>
-  	)
-}
+    const [token, setToken] = useState(() => () => localStorage.getItem('token'));
 
+    return (
+        <Router>
+            <AppRoutes token={token} setToken={setToken} />
+        </Router>
+    )
+}
 export default App

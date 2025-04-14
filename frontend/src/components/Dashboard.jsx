@@ -9,28 +9,16 @@ import {
 import axios from 'axios';
 
 function Dashboard() {
-    const navigate = useNavigate();
-
-    const logout = async () => {
-        try {
-            const token = localStorage.getItem('token');
-            await axios.post('http://localhost:5005/admin/auth/logout', {}, {
-                headers: {
-                    'Authorization': `Bearer ${token}`, 
-                }
-            });
-            localStorage.removeItem('token');
-            navigate('/login');
-        } catch (err) {
-            alert(err.response.data.error)
-        }
-    }
-
+    const navigate =  useNavigate();
     return(
-    <>
-    Dashboard
-    <button onClick={logout}>Log Out</button>
-    </>
+        <>
+            <div className='flex justify-between items-center px-4 py-2 bg-gray-100'>
+                <div className="">Dashboard</div>
+
+                
+            </div>
+
+        </>
     )
 
 }

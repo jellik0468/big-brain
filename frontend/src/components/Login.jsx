@@ -8,7 +8,9 @@ import {
 
 import axios from 'axios';
 
-function Login() {
+function Login(props) {
+    const setToken = props.setToken;
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -22,6 +24,7 @@ function Login() {
             });
             const token = response.data.token;
             localStorage.setItem('token', token);
+            setToken(token);
             navigate('/dashboard');
         } catch (err) {
             alert(err.response.data.error)
