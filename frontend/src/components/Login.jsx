@@ -25,6 +25,7 @@ function Login(props) {
             const token = res.data.token;
             localStorage.setItem('token', token);
             setToken(token);
+            localStorage.setItem('owner', email);
             navigate('/dashboard');
         } catch (err) {
             alert(err.res.data.error)
