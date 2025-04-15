@@ -18,16 +18,16 @@ function Login(props) {
 
     const login = async () => {
         try {
-            const response = await axios.post('http://localhost:5005/admin/auth/login', {
+            const res = await axios.post('http://localhost:5005/admin/auth/login', {
                 email: email,
                 password: password
             });
-            const token = response.data.token;
+            const token = res.data.token;
             localStorage.setItem('token', token);
             setToken(token);
             navigate('/dashboard');
         } catch (err) {
-            alert(err.response.data.error)
+            alert(err.res.data.error)
         }
     }
 

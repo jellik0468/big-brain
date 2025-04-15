@@ -25,17 +25,17 @@ function Register(props) {
         }
 
         try {
-            const response = await axios.post('http://localhost:5005/admin/auth/register', {
+            const res = await axios.post('http://localhost:5005/admin/auth/register', {
                 email: email,
                 password: password,
                 name: name
             });
-            const token = response.data.token;
+            const token = res.data.token;
             localStorage.setItem('token', token);
             setToken(token);
             navigate('/dashboard');
         } catch (err) {
-            alert(err.response.data.error)
+            alert(err.res.data.error)
         }
     }
 

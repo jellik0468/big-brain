@@ -3,7 +3,7 @@ import { BrowserRouter as Router } from "react-router-dom";
 import AppRoutes from './AppRoutes';
 
 function App() {
-    const [token, setToken] = useState(() => () => localStorage.getItem('token'));
+    const [token, setToken] = useState(() => localStorage.getItem('token'));
 
     return (
         <Router>
