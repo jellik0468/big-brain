@@ -25,7 +25,7 @@ function EditQuestion() {
     
     // Updates question when question type changes, we clear every answers entered when update
     useEffect(() => {
-        if (question === "single" || questionType === "multiple") {
+        if (questionType === "single" || questionType === "multiple") {
             // Ensure at least two empty answers
             setAnswers(["", ""]);
             setCorrectAnswers([]);
@@ -53,13 +53,13 @@ function EditQuestion() {
             if (!q) return alert("Question not found!!!");
             setQuestion(q);
             setQuestionType(q.type || "single");
-            setQuestionText(q.text || "");
+            setQuestionText(q.text ?? "");
             setDuration(q.duration || 30);
             setPoints(q.points || 0);
-            setYoutubeUrl(q.youtube || "");
-            setImageBase64(q.image || "");
-            setAnswers(q.correctAnswers ? q.correctAnswers : ["", ""]);
-            setCorrectAnswers(q.correctAnswers || []);
+            setYoutubeUrl(q.youtube ?? "");
+            setImageBase64(q.image ?? "");
+            setCorrectAnswers(q.correctAnswers ?? []);
+            
         } catch (err) {
             alert(err);
         }
@@ -82,10 +82,68 @@ function EditQuestion() {
         setImageInputKey(Date.now());
     }
 
+    // Removing typed in url
     const handleDeleteUrl = (e) => {
         setYoutubeUrl("");  // Clears the input
     };
 
+    // Sending api to backend to save current edit
+    const handleSaveQuestion = async () => {
+        const nonEmptyAnswers = answers.filter(a => a.trim() !== "");
+        if (nonEmptyAnswers.length < 2) {
+            alert('Please enter at least two non-empty answers');
+            return;
+        }
+
+        try {
+            // Step 1: Fetch all games
+            const res = await axios.get('http://localhost:5005/admin/games', {
+                headers: { 'Authorization': `Bearer ${token}` },
+            });
+
+            const games = res.data.games;
+            const gameIndex = games.findIndex(g => String(g.gameId) === String(params.gameId));
+            if (gameIndex === -1) {
+                return alert("Game not found!");
+            }
+    
+            // Steo 2 : Copy games and game
+            const updatedGames = [...games];
+            const updatedGame = { ...updatedGames[gameIndex] };
+
+            // Step 3 : update the specific question
+            const updatedQuestion = {
+                type: questionType,
+                text: questionText,
+                duration: duration,
+                points: points,
+                youtube: youtubeUrl,
+                image: imageBase64,
+                answers: answers,
+                correctAnswers: correctAnswers.map(i => answers[i]), // Convert index to literal answer string
+            }
+
+            // Step 4 : replace the old question we are editing with the new value 
+            const updatedQuestions = [...updatedGame.questions];
+            updatedQuestions[Number(params.questionId)] = updatedQuestion;
+            updatedGame.questions = updatedQuestions;
+    
+            updatedGames[gameIndex] = updatedGame;
+    
+            // Step 5 : Send updated games back to backend
+            await axios.put('http://localhost:5005/admin/games', {
+                games: updatedGames,
+            }, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            alert("Question updated successfully!");
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to update question.");
+        }
+    };
 
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-4">
@@ -124,6 +182,7 @@ function EditQuestion() {
                         className="flex-1 border p-1 rounded"
                     />
                 </label>
+                {/* Only show up when the URL has content in it */}
                 {youtubeUrl && (
                 <button
                     className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
@@ -148,6 +207,7 @@ function EditQuestion() {
                                 file:cursor-pointer"
                     />
                 </label>
+                {/* Only show up when the image exist */}
                 {imageBase64 && (
                 <div className="flex items-center gap-4">
                     <img src={imageBase64} alt="Preview" className="h-32 object-contain" />
@@ -161,7 +221,8 @@ function EditQuestion() {
                 )}
 
             </div>
-
+            
+            {/* Answers field */}
             <div>
                 <h3 className="font-semibold mb-2">Answer(s)</h3>
                 {answers.map((a, i) => (
@@ -175,6 +236,8 @@ function EditQuestion() {
                                 setAnswers(newAnswers);
                             }}
                             className="flex-1 border p-1 rounded"
+
+                            /* Typing not allowed for Judgement question*/
                             disabled={questionType === "judgement"}
                         />
 
@@ -216,6 +279,7 @@ function EditQuestion() {
                             }}
 
                             className={`text-red-500 border border-red-300 px-2 py-1 rounded hover:bg-red-200 ${
+                            // Disable delete when it is <= 2 to enforce two questions at least
                             answers.length <= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
                             disabled={answers.length <= 2}
                         >
@@ -224,7 +288,7 @@ function EditQuestion() {
                         )}
                     </div>
                 ))}
-
+                {/* Enforcing 6 question most */}
                 {answers.length < 6 && questionType !== "judgement" && (
                     <button
                         onClick={() => setAnswers([...answers, ""])}
@@ -234,6 +298,14 @@ function EditQuestion() {
                     </button>
                 )}
             </div>
+            
+            {/* Save button */}
+            <button
+                onClick={handleSaveQuestion}
+                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            >
+                Save Question
+            </button>
         </div>
     )
 }   
