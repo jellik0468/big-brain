@@ -4,6 +4,7 @@ import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import EditGame from './components/EditGame';
 import NavBar from './components/NavBar';
+import EditQuestion from './components/EditQuestion';
 
 function AppRoutes({ token, setToken }) {
 
@@ -25,6 +26,7 @@ function AppRoutes({ token, setToken }) {
                 <Route path="/" element={<NavBar setToken={setToken}/>}>
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="/game/:gameId" element={<EditGame />} />
+                    <Route path="/game/:gameId/question/:questionId" element={<EditQuestion/>} />
                 </Route>
             </Routes>
         </>

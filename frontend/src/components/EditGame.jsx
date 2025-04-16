@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 function EditGame() {
+	const navigate = useNavigate();
+
     const params = useParams();
     const token = localStorage.getItem("token");
   	const [game, setGame] = useState(null);
@@ -49,7 +51,7 @@ function EditGame() {
 	// Handle add question by updating game state
   	const handleAddQuestion = () => {
     	const newQuestion = {
-      		duration: 30,
+      		duration: 0,
       		correctAnswers: [],
       		Answers: [],
     	};
@@ -77,6 +79,11 @@ function EditGame() {
       		alert("Failed to save changes");
     	}
   	};
+
+	// Handle redirecting when edit question button is clicked.
+	const handleEditQuestion = (index) => {
+		navigate(`/game/${params.gameId}/question/${index}`);
+	}
 
   	return (
     	<div className="p-6">
@@ -111,12 +118,21 @@ function EditGame() {
                     		: "None"}
                 		</p>
 
-                		<button
-                  			className="text-red-500 hover:underline"
-                  			onClick={() => handleDeleteQuestion(index)}
-                		>
-                  			❌ Delete This Question
-                		</button>
+						<div className="flex space-x-4">
+						  	<button
+						    	className="text-red-500 hover:underline"
+						    	onClick={() => handleDeleteQuestion(index)}
+						  	>
+						    	❌ Delete This Question
+						  	</button>
+
+						  	<button
+						    	className="text-blue-700 hover:underline"
+						    	onClick={() => handleEditQuestion(index)}
+						  	>
+						    	Edit Question
+						  	</button>
+						</div>
               		</div>
             	))}
         	</div>
