@@ -22,6 +22,19 @@ function EditQuestion() {
     useEffect(() => {
         fetchGameAndQuestion();
     }, []);
+    
+    // Updates question when question type changes, we clear every answers entered when update
+    useEffect(() => {
+        if (question === "single" || questionType === "multiple") {
+            // Ensure at least two empty answers
+            setAnswers(["", ""]);
+            setCorrectAnswers([]);
+        } else if (questionType === "judgement") {
+            // For judgement True false
+            setAnswers(["True", "False"]);
+            setCorrectAnswers([]);
+        }
+    }, [questionType]);
 
     // API call to get the question.
     const fetchGameAndQuestion = async () => {
@@ -149,6 +162,78 @@ function EditQuestion() {
 
             </div>
 
+            <div>
+                <h3 className="font-semibold mb-2">Answer(s)</h3>
+                {answers.map((a, i) => (
+                    <div key={i} className="flex gap-2 items-center mb-2">
+                        <input
+                            type="text"
+                            value={a}
+                            onChange={(e) => {
+                                const newAnswers = [...answers];
+                                newAnswers[i] = e.target.value;
+                                setAnswers(newAnswers);
+                            }}
+                            className="flex-1 border p-1 rounded"
+                            disabled={questionType === "judgement"}
+                        />
+
+                        <label className="flex items-center gap-1">
+                            <input
+                                type="checkbox"
+                                checked={correctAnswers.includes(i)}
+                                onChange={(e) => {
+                                    const isChecked = e.target.checked;
+                                    let newCorrectAnswers;
+                                
+                                    if (questionType === "single" || questionType === "judgement") {
+                                        // Allow only one correct answer
+                                        newCorrectAnswers = isChecked ? [i] : [];
+                                    } else {
+                                        // Allow multiple selections
+                                        newCorrectAnswers = isChecked
+                                        ? [...correctAnswers, i]
+                                        : correctAnswers.filter(index => index !== i);
+                                    }
+                                
+                                    setCorrectAnswers(newCorrectAnswers);
+                                }}
+                            />
+                            Correct
+                        </label>
+
+                        {questionType !== "judgement" && (
+                        <button
+                            onClick={() => {
+                                const newAnswers = answers.filter((_, index) => index !== i);
+
+                                const newCorrectAnswers = correctAnswers
+                                .filter(index => index !== i)
+                                .map(index => (index > i ? index - 1 : index));
+
+                                setAnswers(newAnswers);
+                                setCorrectAnswers(newCorrectAnswers);
+                            }}
+
+                            className={`text-red-500 border border-red-300 px-2 py-1 rounded hover:bg-red-200 ${
+                            answers.length <= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
+                            disabled={answers.length <= 2}
+                        >
+                            Delete
+                        </button>
+                        )}
+                    </div>
+                ))}
+
+                {answers.length < 6 && questionType !== "judgement" && (
+                    <button
+                        onClick={() => setAnswers([...answers, ""])}
+                        className="mt-2 px-3 py-1 border rounded hover:bg-gray-200"
+                    >
+                        Add Answer
+                    </button>
+                )}
+            </div>
         </div>
     )
 }   
