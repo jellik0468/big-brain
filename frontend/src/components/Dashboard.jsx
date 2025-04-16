@@ -99,6 +99,7 @@ function Dashboard() {
             const existingGames = res.data.games;
 
             const newGame = {
+                gameName: gameName,
                 gameId: Math.floor(Math.random() * 100000000),
                 owner: owner,
                 active: null,
@@ -134,8 +135,8 @@ function Dashboard() {
                         <div className="text-center w-56">
                             <div className="text-center w-56">
                                 <h3 className="text-lg font-black text-gray-800">Create New Game</h3>
-                                <label htmlFor="gameId">Game Id</label>
-                                <input type="text" id="gameId" className='mb-2 border rounded-sm'
+                                <label htmlFor="gameName">Game Name</label>
+                                <input type="text" id="gameName" className='mb-2 border rounded-sm'
                                 onChange={(e) =>setGameName(e.target.value)} value={gameName}/>
                                 <div className="mt-4">
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -252,7 +253,7 @@ function Dashboard() {
                             <div 
                                 key={game.id}
                                 className="border rounded p-4 shadow cursor-pointer hover:shadow-lg h-70"
-                                onClick={() => navigate(`/game/${game.id}`)}
+                                onClick={() => navigate(`/game/${game.gameId}`)}
                             >
                                 {game.thumbnail && (
                                     <img
@@ -261,7 +262,7 @@ function Dashboard() {
                                         className="w-full h-40 object-cover rounded mb-2"
                                     />
                                 )}
-                                <h3 className="text-lg font-semibold">Game ID: {game.id}</h3>
+                                <h3 className="text-lg font-semibold">Game ID: {game.gameName}</h3>
                                 <p>Questions: {game.questions.length}</p>
                                 <p>Total Duration: {
                                     game.questions.reduce((sum, q) => sum + q.duration, 0)

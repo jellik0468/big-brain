@@ -24,10 +24,8 @@ function AppRoutes({ token, setToken }) {
                 />
                 <Route path="/" element={<NavBar setToken={setToken}/>}>
                     <Route path="dashboard" element={<Dashboard />} />
+                    <Route path="/game/:gameId" element={<EditGame />} />
                 </Route>
-                <Route
-                    path="/game/:gameId" element={<EditGame />} 
-                />
             </Routes>
         </>
     );
