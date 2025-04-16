@@ -16,6 +16,7 @@ function EditQuestion() {
     const [imageBase64, setImageBase64] = useState("");
     const [answers, setAnswers] = useState(["", ""]);
     const [correctAnswers, setCorrectAnswers] = useState([]);
+    const [imageInputKey, setImageInputKey] = useState(Date.now());
 
     // When we load or refresh the page call fetchGameAndQuestion reload the page
     useEffect(() => {
@@ -62,6 +63,16 @@ function EditQuestion() {
         reader.readAsDataURL(file);
     };
 
+    // Removing uploaded Image
+    const handleDeleteImg = (e) => {
+        setImageBase64(null);
+        setImageInputKey(Date.now());
+    }
+
+    const handleDeleteUrl = (e) => {
+        setYoutubeUrl("");  // Clears the input
+    };
+
 
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-4">
@@ -91,24 +102,52 @@ function EditQuestion() {
                 <input type="number" value={points} onChange={(e) => setPoints(Number(e.target.value))} className="w-full border p-1 rounded" />
             </label>
 
-            <label className="block">
-                YouTube URL (optional):
-                <input value={youtubeUrl} onChange={(e) => setYoutubeUrl(e.target.value)} className="w-full border p-1 rounded" />
-            </label>
+            <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 w-full">
+                    YouTube URL (optional):
+                    <input
+                        value={youtubeUrl}
+                        onChange={(e) => setYoutubeUrl(e.target.value)}
+                        className="flex-1 border p-1 rounded"
+                    />
+                </label>
+                {youtubeUrl && (
+                <button
+                    className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
+                    onClick={handleDeleteUrl}
+                >
+                    Delete URL
+                </button>
+                )}
+            </div>
 
-            <label className="block">
-                Upload Image (optional):
-                <input type="file" accept="image/*" onChange={handleImageUpload} 
-                className="block w-full text-sm text-gray-700
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-full file:border file:mb-3
-                            file:text-sm file:font-semibold
-                            file:bg-blue-50 file:text-blue-700
-                            hover:file:bg-blue-200
-                            file:cursor-pointer"
-                />
-            </label>
-            {imageBase64 && <img src={imageBase64} alt="Preview" className="mt-2 h-32 object-contain" />}
+            <div className="flex items-center gap-2">
+                <label className="block">
+                    Upload Image (optional):
+                    <input type="file" accept="image/*" onChange={handleImageUpload}
+                    key={imageInputKey}
+                    className="block w-full text-sm text-gray-700
+                                file:mr-4 file:py-2 file:px-4
+                                file:rounded-full file:border file:mb-3
+                                file:text-sm file:font-semibold
+                                file:bg-blue-50 file:text-blue-700
+                                hover:file:bg-blue-200
+                                file:cursor-pointer"
+                    />
+                </label>
+                {imageBase64 && (
+                <div className="flex items-center gap-4">
+                    <img src={imageBase64} alt="Preview" className="h-32 object-contain" />
+                    <button
+                        className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
+                        onClick={handleDeleteImg}
+                    >
+                        Delete Image
+                    </button>
+                </div>
+                )}
+
+            </div>
 
         </div>
     )
