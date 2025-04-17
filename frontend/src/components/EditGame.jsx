@@ -111,13 +111,6 @@ function EditGame() {
                     		: ""}
                 		</p>
 
-                		<p>
-                  			<strong>Options:</strong>{" "}
-                  			{q.Answers && q.Answers.length > 0
-                    		? q.Answers.map((a, i) => a.Answer).join(", ")
-                    		: "None"}
-                		</p>
-
 						<div className="flex space-x-4">
 						  	<button
 						    	className="text-red-500 hover:underline"

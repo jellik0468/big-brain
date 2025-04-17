@@ -13,59 +13,13 @@ function Dashboard() {
     const [games, setGames] = useState([]);
     const [openAddGame, setOpenAddGame] = useState(false);
     const [openStartGame, setOpenStartGame] = useState(false);
+    const [step, setStep] = useState('confirm');
     const [gameName, setGameName] = useState('');
-    const [thumbnail, setThumbnail] = useState('');
-
-    const [questions, setQuestions] = useState([
-        { duration: '', correctAnswers: '', options: [] }
-    ]);
-
-    /*------Managing field in modal------*/
-    const addOptionField = (questionIndex) => {
-        const updated = [...questions];
-        updated[questionIndex].options.push('');
-        setQuestions(updated);
-    };
-      
-    const handleOptionChange = (questionIndex, optionIndex, value) => {
-        const updated = [...questions];
-        updated[questionIndex].options[optionIndex] = value;
-        setQuestions(updated);
-    };
-      
-    const handleFieldChange = (questionIndex, field, value) => {
-        const updated = [...questions];
-        updated[questionIndex][field] = value;
-        setQuestions(updated);
-    };
-
-    const removeOption = (questionIndex, optionIndex) => {
-        const updated = [...questions];
-        updated[questionIndex].options.splice(optionIndex, 1);
-        setQuestions(updated);
-    };
-      
-    const removeQuestion = (questionIndex) => {
-        const updated = [...questions];
-        updated.splice(questionIndex, 1);
-        setQuestions(updated);
-    };
-
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setThumbnail(reader.result); // base64 string
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-    /* ------Managing field in modal------*/
+    const [selectedGameId, setSelectedGameId] = useState(null);
+    const [sessionId, setSessionId] = useState(null)
 
     const owner = localStorage.getItem('owner');
     const token = localStorage.getItem('token');
-    console.log(token);
 
     useEffect(() => {
         fetchGames();
@@ -82,13 +36,6 @@ function Dashboard() {
         }
     }
 
-    // Helper function to transform questions to match the API shape
-    const transformQuestions = (questions)  => {
-        return questions.map(q => ({
-            duration: Number(q.duration),
-            correctAnswers: q.correctAnswers.split(',').map(a => a.trim())
-        }));
-    }
 
     // Function to update game via PUT API
     const handleCreateGame = async () => {
@@ -104,8 +51,7 @@ function Dashboard() {
                 gameId: Math.floor(Math.random() * 100000000),
                 owner: owner,
                 active: null,
-                questions: transformQuestions(questions),
-                thumbnail: thumbnail
+                questions: []
             }
 
             const updatedGames = [...existingGames, newGame];
@@ -114,7 +60,6 @@ function Dashboard() {
                 { games: updatedGames },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            console.log(res);
             alert("Game created successfully!");
             () => setOpenAddGame(false);
             fetchGames(); // refresh imediately
@@ -124,6 +69,26 @@ function Dashboard() {
         }
     }
 
+    // Generating session code
+    const generateSessionCode = async () => {
+        try {
+            const res = await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
+                { mutationType: 'START' },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            const newSessionId = res.data.data.sessionId
+
+            setSessionId(newSessionId);
+            setStep('session');
+        } catch (err) {
+            console.log(err);
+
+            if (err.response.status === 400) {
+                setStep('alreadyActive') // session is on, change the modal for user
+            }
+        }
+    };
+
     return(
         <>
             <div className="">
@@ -131,7 +96,10 @@ function Dashboard() {
                     <div className='flex gap-4'>
                         <button
                             className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200'
-                            onClick={() => setOpenAddGame(true)}
+                            onClick={() => {
+                                setStep('confirm');
+                                setOpenAddGame(true)
+                            }}
                         >
                             Add Game
                         </button>
@@ -161,6 +129,8 @@ function Dashboard() {
                                 className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-300'
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    setSelectedGameId(game.gameId);
+                                    setStep('confirm');
                                     setOpenStartGame(true);
                                 }}
                             >
@@ -186,8 +156,8 @@ function Dashboard() {
                             Create</button>
                         <button
                             className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                            onClick={() => setOpenAddGame(false)}
-                        >
+                            onClick={() => {setOpenAddGame(false)}}
+                            >
                             Cancel
                         </button>
                     </div>
@@ -195,7 +165,59 @@ function Dashboard() {
             </Modal>
 
             <Modal open={openStartGame} onClose={() => setOpenStartGame(false)}>
-                
+                {step === 'confirm' ? (
+                    <>
+                        <p>Are you sure you want to start the game?</p>
+                        <div className='flex gap-4 mt-3 justify-center'>
+                            <button onClick={generateSessionCode} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
+                                mt-3 cursor-pointer hover:bg-zinc-400'>
+                            Yes
+                            </button>
+
+                            <button onClick={() => setOpenStartGame(false)} className='btn p-3 pr-5 pl-5
+                                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+                            No
+                            </button>
+                        </div>
+                    </>
+                    ) : step === 'session' && sessionId ? (
+                        <div>
+                            <div className='text-center'>
+                                <p className='font-semibold text-lg'> Game Started!</p>
+                                <p className='mt-2'>Session Code:</p>
+                                <h2 className='text-2l font-bold tracking-wider mt-1'>{sessionId}</h2>
+                                <button
+                                    className='btn w-full border rounded -md mt-4 cursor-pointer hover:bg-zinc-400'
+                                    onClick={() => {
+                                        // CleanUp
+                                        setOpenStartGame(false)
+                                        setSessionId(null);
+                                        setStep('confirm')
+                                    }}
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    ) : step === 'alreadyActive' ? (
+                        <div className="text-center">
+                            <p className="font-bold text-xl text-yellow-600">Game Already Running!!!</p>
+                            <p className="mt-2 text-sm text-gray-600">
+                                This game already has an active session. You can't start another one until it's ended.
+                            </p>
+                            <button
+                                className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
+                                onClick={() => {
+                                    setOpenStartGame(false);
+                                    setStep('confirm');
+                                    setSessionId(null);
+                                }}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    ) : null
+                }
             </Modal>
 
         </>
