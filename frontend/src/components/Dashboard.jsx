@@ -40,10 +40,8 @@ function Dashboard() {
 
     // Function to handle show result by navigating to the result page of the session just ended
     const handleViewResult = () => {
-        
+        navigate(`/session/${sessionId}`);
     }
-
-
 
     // Function to update game via PUT API
     const handleCreateGame = async () => {
@@ -59,7 +57,6 @@ function Dashboard() {
                 gameId: Math.floor(Math.random() * 100000000),
                 owner: owner,
                 questions: [],
-                active: false,
             }
 
             const updatedGames = [...existingGames, newGame];
@@ -85,8 +82,12 @@ function Dashboard() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
+            const game = games.find(g => g.gameId === selectedGameId);
+            setSessionId(game.prevSessionId);
+
             setStep('gameStopped');
-            setSelectedGameId(null)
+            setSelectedGameId(null);
+            fetchGames(); // re render
 
         } catch (err) {
             console.log(err);
@@ -104,6 +105,24 @@ function Dashboard() {
 
             setSessionId(newSessionId);
             setStep('session');
+            setSelectedGameId(null);
+
+            // Add sessionId into the game object
+            const updatedGames = games.map(game => {
+                if (game.gameId === selectedGameId) {
+                    return {...game, prevSessionId: newSessionId };
+                }
+                return game;
+            })
+
+            // Save it to backend
+            await axios.put(
+                'http://localhost:5005/admin/games',
+                { games: updatedGames },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            
+            fetchGames(); // re render
 
         } catch (err) {
             console.log(err);
@@ -135,7 +154,7 @@ function Dashboard() {
                     {games.map(game => (
                         <div 
                             key={game.id}
-                            className="border rounded p-4 shadow cursor-pointer hover:shadow-lg"
+                            className="border rounded p-4 shadow cursor-pointer hover:shadow-2xl"
                             onClick={() => navigate(`/game/${game.gameId}`)}
                         >
                             {game.thumbnail && (

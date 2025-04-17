@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import EditGame from './components/EditGame';
 import NavBar from './components/NavBar';
 import EditQuestion from './components/EditQuestion';
+import AdminSessionPage from './components/AdminSessionPage';
 
 function AppRoutes({ token, setToken }) {
 
@@ -27,6 +28,7 @@ function AppRoutes({ token, setToken }) {
                     <Route path="dashboard" element={<Dashboard />} />
                     <Route path="/game/:gameId" element={<EditGame />} />
                     <Route path="/game/:gameId/question/:questionId" element={<EditQuestion/>} />
+                    <Route path="/session/:sessionId" element={<AdminSessionPage/>} />
                 </Route>
             </Routes>
         </>
