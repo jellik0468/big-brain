@@ -13,10 +13,12 @@ function Dashboard() {
     const [games, setGames] = useState([]);
     const [openAddGame, setOpenAddGame] = useState(false);
     const [openStartGame, setOpenStartGame] = useState(false);
+    const [openStopGame, setOpenStopGame] = useState(false);
     const [step, setStep] = useState('confirm');
     const [gameName, setGameName] = useState('');
     const [selectedGameId, setSelectedGameId] = useState(null);
-    const [sessionId, setSessionId] = useState(null)
+    const [sessionId, setSessionId] = useState(null);
+    const [copied, setCopied] = useState(false);
 
     const owner = localStorage.getItem('owner');
     const token = localStorage.getItem('token');
@@ -36,6 +38,12 @@ function Dashboard() {
         }
     }
 
+    // Function to handle show result by navigating to the result page of the session just ended
+    const handleViewResult = () => {
+        
+    }
+
+
 
     // Function to update game via PUT API
     const handleCreateGame = async () => {
@@ -50,8 +58,8 @@ function Dashboard() {
                 gameName: gameName,
                 gameId: Math.floor(Math.random() * 100000000),
                 owner: owner,
-                active: null,
-                questions: []
+                questions: [],
+                active: false,
             }
 
             const updatedGames = [...existingGames, newGame];
@@ -69,7 +77,23 @@ function Dashboard() {
         }
     }
 
-    // Generating session code
+    // Function to stop a game via API
+    const handleStopGame = async () => {
+        try {
+            const res = await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
+                { mutationType: 'END' },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+
+            setStep('gameStopped');
+            setSelectedGameId(null)
+
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    // Start a game and generating session code
     const generateSessionCode = async () => {
         try {
             const res = await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
@@ -80,6 +104,7 @@ function Dashboard() {
 
             setSessionId(newSessionId);
             setStep('session');
+
         } catch (err) {
             console.log(err);
 
@@ -89,7 +114,7 @@ function Dashboard() {
         }
     };
 
-    return(
+    return (
         <>
             <div className="">
                 <div className='m-5 pb-5 border-b'>
@@ -125,22 +150,38 @@ function Dashboard() {
                             <p>Total Duration: {
                                 game.questions.reduce((sum, q) => sum + q.duration, 0)
                             } seconds</p>
-                            <button
-                                className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-300'
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedGameId(game.gameId);
-                                    setStep('confirm');
-                                    setOpenStartGame(true);
-                                }}
-                            >
-                                Start Game
-                            </button>
+                            <div className='flex gap-4 mt-3'>
+                                <button
+                                    className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-300'
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setSelectedGameId(game.gameId);
+                                        setStep('confirm');
+                                        setOpenStartGame(true);
+                                    }}
+                                >
+                                    Start Game
+                                </button>
+                                {game.active && (
+                                    <button
+                                        className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-300'
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedGameId(game.gameId);
+                                            setStep('confirm');
+                                            setOpenStopGame(true);
+                                        }}    
+                                    >
+                                        Stop Game
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>
 
             </div>
+            {/* Modal for add game button*/}
             <Modal open={openAddGame} onClose={() => setOpenAddGame(false)}>
                 <div className="text-center w-56">
                     <div className="text-center w-56">
@@ -163,7 +204,7 @@ function Dashboard() {
                     </div>
                 </div>
             </Modal>
-
+            {/* Modal for start game button*/}
             <Modal open={openStartGame} onClose={() => setOpenStartGame(false)}>
                 {step === 'confirm' ? (
                     <>
@@ -186,12 +227,29 @@ function Dashboard() {
                                 <p className='font-semibold text-lg'> Game Started!</p>
                                 <p className='mt-2'>Session Code:</p>
                                 <h2 className='text-2l font-bold tracking-wider mt-1'>{sessionId}</h2>
+
+                                <button
+                                    className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
+                                    onClick={() => {
+                                        const link = `${window.location.origin}/play/:sessionId`;
+                                        navigator.clipboard.writeText(link);
+                                        setCopied('true');
+                                    }}
+                                >
+                                    Copy Join Link
+                                </button>
+
+                                {copied && (
+                                    <p className="mt-2 text-sm text-red-600 font-medium">Link copied to clipboard!</p>
+                                )}
+
                                 <button
                                     className='btn w-full border rounded -md mt-4 cursor-pointer hover:bg-zinc-400'
                                     onClick={() => {
                                         // CleanUp
                                         setOpenStartGame(false)
                                         setSessionId(null);
+                                        setCopied(false);
                                         setStep('confirm')
                                     }}
                                 >
@@ -220,6 +278,41 @@ function Dashboard() {
                 }
             </Modal>
 
+            {/* Modal for stop game button*/}
+            <Modal open={openStopGame} onClose={() => setOpenStopGame(false)}>
+                {step === 'confirm' ? (
+                    <>
+                        <p>Are you sure you want to stop the game?</p>
+                        <div className='flex gap-4 mt-3 justify-center'>
+                            <button onClick={handleStopGame} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
+                                mt-3 cursor-pointer hover:bg-zinc-400'>
+                            Yes
+                            </button>
+
+                            <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
+                                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+                            No
+                            </button>
+                        </div>
+                    </>
+                    ) : step === 'gameStopped' ? (
+                        <div>
+                            <p>The game has ended, would you like to view the results?</p>
+                            <div className='flex gap-4 mt-3 justify-center'>
+                                <button onClick={handleViewResult} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
+                                    mt-3 cursor-pointer hover:bg-zinc-400'>
+                                    Yes
+                                </button>
+
+                                <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
+                                    border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+                                    No
+                                </button>
+                            </div>
+                        </div>
+                    ) : null
+                }
+            </Modal>
         </>
     )
 
