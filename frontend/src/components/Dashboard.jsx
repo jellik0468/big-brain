@@ -259,8 +259,19 @@ function Dashboard() {
                                 </button>
 
                                 {copied && (
-                                    <p className="mt-2 text-sm text-red-600 font-medium">Link copied to clipboard!</p>
+                                    <p className="mt-2 text-sm text-red-600 mb-3 font-medium">Link copied to clipboard!</p>
                                 )}
+                                <p className="text-sm text-gray-700">
+                                    Manage your past game sessions from the admin panel.
+                                </p>
+                                <button
+                                    className="btn w-full border rounded-md mt-1 cursor-pointer hover:bg-zinc-400"
+                                    onClick={() => {
+                                        navigate(`/session/${sessionId}`);
+                                    }}
+                                >
+                                    Go to Admin panel for this session
+                                </button>
 
                                 <button
                                     className='btn w-full border rounded -md mt-4 cursor-pointer hover:bg-zinc-400'
