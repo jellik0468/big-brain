@@ -14,27 +14,29 @@ export const GameProvider = ({ children }) => {
 
     // Fetch games once on mount
     useEffect(() => {
-        const fetchGames = async () => {
+        fetchGames();
+    }, []);
+
+    // Refresh page function for children to call
+    const fetchGames = async () => {
         try {
             const res = await axios.get("http://localhost:5005/admin/games", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { 'Authorization': `Bearer ${token}` },
             });
             setGames(res.data.games);
-            console.log(res,'wdwd');
         } catch (err) {
-            console.error("Failed to fetch games:", err);
+            console.log(err);
         } finally {
             setLoading(false);
         }
     };
-        fetchGames();
-    }, []);
 
     return (
-        <GameContext.Provider value={{ games, setGames, loading }}>
+        <GameContext.Provider value={{ games, setGames, loading, fetchGames }}>
             {children}
         </GameContext.Provider>
     );
 };
+
 
 export const useGames = () => useContext(GameContext);

@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { useGames } from './context/GameContext';
 import { useSession } from './context/SessionContext';
+import axios from 'axios';
 
 function AdminSessionPage() {
     const { sessionData, fetchSession, loadingSession } = useSession();
@@ -75,7 +76,7 @@ function AdminSessionPage() {
             ) : (
                 <div className="text-center mt-10">
                     <h1 className="text-2xl font-bold mb-4">Session ID: {params.sessionId}</h1>
-                    <p>Current Question: #{sessionData.position + 1}</p>
+                    <p>Current Question: #{sessionData?.position !== undefined ? sessionData.position + 1 : 'N/A'}</p>
                     <p>Time Remaining: {Math.floor(getRemainingTime())}s</p>
                 
                     {sessionActive ? (

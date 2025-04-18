@@ -11,7 +11,8 @@ import {
 
 function Dashboard() {
     const navigate =  useNavigate();
-    const { games, setGames, loading } = useGames();
+    const { games, setGames, loading, fetchGames } = useGames();
+
     const [openAddGame, setOpenAddGame] = useState(false);
     const [openStartGame, setOpenStartGame] = useState(false);
     const [openStopGame, setOpenStopGame] = useState(false);
@@ -39,15 +40,16 @@ function Dashboard() {
                 questions: [],
             }
 
-            const updatedGames = [...existingGames, newGame];
+            const updatedGames = [...Object.values(games), newGame];
 
             await axios.put('http://localhost:5005/admin/games',
                 { games: updatedGames },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
+
             alert("Game created successfully!");
             setOpenAddGame(false);
-            setGames(updatedGames); // refresh imediately
+            await fetchGames(); // refresh imediately
         } catch (err) {
             console.log(err);
             alert("Failed to create game.");
@@ -75,7 +77,7 @@ function Dashboard() {
 
             setStep('gameStopped');
             setSelectedGameId(null);
-            setGames(updatedGames); // re render
+            await fetchGames(); // re render
 
         } catch (err) {
             console.log(err);
@@ -110,7 +112,7 @@ function Dashboard() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             
-            setGames(updatedGames); // re render
+            await fetchGames(); // re render
 
         } catch (err) {
             console.log(err);
@@ -141,7 +143,7 @@ function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-3">
                     {Object.values(games).map(game => (
                         <div 
-                            key={game.id}
+                            key={game.gameId}
                             className="border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl bg-zinc-700 text-white"
                             onClick={() => navigate(`/game/${game.gameId}`)}
                         >
