@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useGames } from './context/GameContext';
 import { useSession } from './context/SessionContext';
+import SessionResults from "../SessionResults";
 import axios from 'axios';
 
 function AdminSessionPage() {
@@ -123,32 +124,37 @@ function AdminSessionPage() {
     return (
         <>
             {loadingSession ? (
+                // 1 still loading
                 <p>Loading session...</p>
-            ) : (
+    
+            ) : sessionData?.active ? (
+                // 2 session is active, show timer & controls
                 <div className="text-center mt-10">
-                    <h1 className="text-2xl font-bold mb-4">Session ID: {params.sessionId}</h1>
-                    <p>Current Question: #{sessionData?.position + 1}</p>
+                    <h1 className="text-2xl font-bold mb-4">
+                        Session ID: {params.sessionId}
+                    </h1>
+                    <p>Current Question: #{sessionData.position + 1}</p>
                     <p>Time Remaining: {remainingTime}s</p>
-                
-                    {sessionActive ? (
-                        <div className="flex gap-4 justify-center mt-4">
-                            <button
-                                className="btn border rounded-md p-3 bg-blue-200 hover:bg-blue-300"
-                                onClick={advanceSession}
-                            >
-                                Advance Question
-                            </button>
-                            <button
-                                className="btn border rounded-md p-3 bg-red-200 hover:bg-red-300"
-                                onClick={stopSession}
-                            >
-                                Stop Session
-                            </button>
-                        </div>
-                    ) : (
-                        <p className="mt-4 text-gray-500 italic">Session is not active.</p>
-                    )}
+    
+                    <div className="flex gap-4 justify-center mt-4">
+                        <button
+                            className="btn border rounded-md p-3 bg-blue-200 hover:bg-blue-300"
+                            onClick={advanceSession}
+                        >
+                            Advance Question
+                        </button>
+                        <button
+                            className="btn border rounded-md p-3 bg-red-200 hover:bg-red-300"
+                            onClick={stopSession}
+                        >
+                            Stop Session
+                        </button>
+                    </div>
                 </div>
+            ) : (
+                // If session exist, and is not active, the game should have results
+                // 3 session finished (active === false) show results
+                <SessionResults sessionId={params.sessionId} />
             )}
         </>
     );
