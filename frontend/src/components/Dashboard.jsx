@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useGames } from './context/GameContext';
 import axios from 'axios';
 import Modal from './Modal';
 
@@ -10,7 +11,7 @@ import {
 
 function Dashboard() {
     const navigate =  useNavigate();
-    const [games, setGames] = useState([]);
+    const { games, setGames, loading } = useGames();
     const [openAddGame, setOpenAddGame] = useState(false);
     const [openStartGame, setOpenStartGame] = useState(false);
     const [openStopGame, setOpenStopGame] = useState(false);
@@ -23,21 +24,6 @@ function Dashboard() {
     const owner = localStorage.getItem('owner');
     const token = localStorage.getItem('token');
 
-    useEffect(() => {
-        fetchGames();
-    }, []);
-
-    const fetchGames = async() => {
-        try {
-            const res = await axios.get('http://localhost:5005/admin/games', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            setGames(res.data.games);
-        } catch (err) {
-            alert(err)
-        }
-    }
-
     // Function to handle show result by navigating to the result page of the session just ended
     const handleViewResult = () => {
         navigate(`/session/${sessionId}`);
@@ -46,12 +32,6 @@ function Dashboard() {
     // Function to update game via PUT API
     const handleCreateGame = async () => {
         try {
-            const res = await axios.get('http://localhost:5005/admin/games', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            const existingGames = res.data.games;
-
             const newGame = {
                 gameName: gameName,
                 gameId: Math.floor(Math.random() * 100000000),
@@ -66,8 +46,8 @@ function Dashboard() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             alert("Game created successfully!");
-            () => setOpenAddGame(false);
-            fetchGames(); // refresh imediately
+            setOpenAddGame(false);
+            setGames(updatedGames); // refresh imediately
         } catch (err) {
             console.log(err);
             alert("Failed to create game.");
@@ -82,12 +62,20 @@ function Dashboard() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
+            const updatedGames = games.map(game => {
+                if (game.gameId === selectedGameId) {
+                    return { ...game, active: null };
+                }
+                return game;
+            });
+
             const game = games.find(g => g.gameId === selectedGameId);
+
             setSessionId(game.prevSessionId);
 
             setStep('gameStopped');
             setSelectedGameId(null);
-            fetchGames(); // re render
+            setGames(updatedGames); // re render
 
         } catch (err) {
             console.log(err);
@@ -122,7 +110,7 @@ function Dashboard() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             
-            fetchGames(); // re render
+            setGames(updatedGames); // re render
 
         } catch (err) {
             console.log(err);
@@ -148,13 +136,13 @@ function Dashboard() {
                             Add Game
                         </button>
                     </div>
-                    <h2 className='text-2xl font-semibold text-center'>Dashboard</h2>
+                    <h2 className='text-4xl font-semibold text-center'>Dashboard</h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-3">
-                    {games.map(game => (
+                    {Object.values(games).map(game => (
                         <div 
                             key={game.id}
-                            className="border rounded p-4 shadow cursor-pointer hover:shadow-2xl"
+                            className="border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl bg-zinc-700 text-white"
                             onClick={() => navigate(`/game/${game.gameId}`)}
                         >
                             {game.thumbnail && (
@@ -171,7 +159,7 @@ function Dashboard() {
                             } seconds</p>
                             <div className='flex gap-4 mt-3'>
                                 <button
-                                    className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-300'
+                                    className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200'
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedGameId(game.gameId);
@@ -183,7 +171,7 @@ function Dashboard() {
                                 </button>
                                 {game.active && (
                                     <button
-                                        className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-300'
+                                        className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200'
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setSelectedGameId(game.gameId);

@@ -1,65 +1,57 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect } from "react";
+import { useGames } from './context/GameContext';
+import { useSession } from './context/SessionContext';
 
 function AdminSessionPage() {
+    const { sessionData, fetchSession, loadingSession } = useSession();
+    const { games } = useGames();
     const params = useParams();
-    const [sessionData, setSessionData] = useState(null);
-    const [loading, setLoading] = useState(true);
-
+  
     const token = localStorage.getItem('token');
-
-    // Called to load the session result when sessionId change
-    useEffect(() => {
-        const fetchSession = async () => {
-            try {
-                // Step 1: Get session status
-                const statusRes = await axios.get(`http://localhost:5005/admin/session/${params.sessionId}/status`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                const statusData = statusRes.data;
-    
-                // Step 2: If session is not active, get the results
-                if (!statusData.results.active) {
-                    const resultsRes = await axios.get(`http://localhost:5005/admin/session/${params.sessionId}/results`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    setSessionData(resultsRes.data);
-                } else {
-                    // If session is active, use status data
-                    setSessionData(statusData);
-                }
-    
-                setLoading(false);
-            } catch (err) {
-                console.error("Failed to load session data:", err);
+  
+    const findGameIdBySession = (sessionId) => {
+        for (const game of Object.values(games)) {
+            if (
+                game.prevSessionId === Number(sessionId) ||
+                game.active === Number(sessionId) ||
+                (Array.isArray(game.oldSessions) && game.oldSessions.includes(Number(sessionId)))
+            ) {
+                return game.gameId;
             }
-        };
-    
-        fetchSession();
-    }, [params.sessionId]);
-
+        }
+        return null;
+    };
+  
+    useEffect(() => {
+        const gameId = findGameIdBySession(params.sessionId);
+        fetchSession(params.sessionId, token, gameId);
+    }, [params.sessionId, games]);
+  
+    // Helper function get reamaining time
     const getRemainingTime = () => {
-        if (!sessionData) return 0;
-        const start = new Date(sessionData.questionStartedAt).getTime();
+        if (!sessionData || !sessionData.isoTimeLastQuestionStarted) return 0;
+        const start = new Date(sessionData.isoTimeLastQuestionStarted).getTime();
         const now = Date.now();
         const elapsed = (now - start) / 1000;
+
         return Math.max(0, sessionData.questionDuration - elapsed);
     };
-
+  
     const advanceSession = async () => {
         try {
-            await axios.post(`http://localhost:5005/admin/game/${sessionData.gameId}/advance`,
-            {},
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
+            await axios.post(
+                `http://localhost:5005/admin/game/${sessionData.gameId}/mutate`,
+                { mutationType: 'ADVANCE' },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
 
-        } catch (err) {
-            console.error(err);
-        }
+            fetchSession(params.sessionId, token, sessionData.gameId); // refresh after advance question
+      } catch (err) {
+            console.log(err);
+      }
     };
-      
+  
     const stopSession = async () => {
         try {
             await axios.post(
@@ -68,24 +60,24 @@ function AdminSessionPage() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
             alert("Game session stopped.");
+            fetchSession(params.sessionId, token, sessionData.gameId); // refresh after stop
         } catch (err) {
-            alert(err)
-            console.error(err);
+            console.log(err);
         }
     };
-
+  
     const sessionActive = sessionData?.active === true;
-
+  
     return (
         <>
-            {loading ? (
+            {loadingSession ? (
                 <p>Loading session...</p>
             ) : (
-                <div className="text-center">
+                <div className="text-center mt-10">
                     <h1 className="text-2xl font-bold mb-4">Session ID: {params.sessionId}</h1>
                     <p>Current Question: #{sessionData.position + 1}</p>
                     <p>Time Remaining: {Math.floor(getRemainingTime())}s</p>
-            
+                
                     {sessionActive ? (
                         <div className="flex gap-4 justify-center mt-4">
                             <button
@@ -107,7 +99,7 @@ function AdminSessionPage() {
                 </div>
             )}
         </>
-    )
+    );
 }
-
-export default AdminSessionPage;
+  
+  export default AdminSessionPage;
