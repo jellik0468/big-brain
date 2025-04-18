@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 function HistorySession() {
+    const navigate = useNavigate();
+
     // used sessions state
     const [activeSessions, setActiveSessions] = useState([]);
     const [latestSessions, setLatestSessions] = useState([]);
@@ -99,9 +102,13 @@ function HistorySession() {
                                 {activeSessions.map((session) => (
                                     <div
                                         key={session.sessionId}
-                                        className="border border-green-300 bg-green-50 rounded-md p-4 shadow"
+                                        onClick={() => navigate(`/session/${session.sessionId}`)}
+                                        className="border border-green-300 bg-green-50 rounded-md p-4 
+                                        shadow hover:shadow-md hover:bg-green-100 transition"
                                     >
-                                        <p className="font-semibold text-green-700">Game: {session.gameName}</p>
+                                        <p className="cursor-pointer font-semibold text-green-700 duration-500">
+                                            Game: {session.gameName}
+                                        </p>
                                         <p>Session ID: {session.sessionId}</p>
                                         <p className="text-sm text-green-600">Status: Active</p>
                                     </div>
@@ -120,7 +127,9 @@ function HistorySession() {
                                 {latestSessions.map((session) => (
                                     <div
                                         key={session.sessionId}
-                                        className="border border-blue-200 bg-blue-50 rounded-md p-4 shadow"
+                                        onClick={() => navigate(`/session/${session.sessionId}`)}
+                                        className="cursor-pointer border border-blue-200 bg-blue-50 
+                                        rounded-md p-4 shadow hover:shadow-md hover:bg-blue-200 transition duration-500"
                                     >
                                         <p className="font-semibold text-blue-700">Game: {session.gameName}</p>
                                         <p>Session ID: {session.sessionId}</p>
@@ -140,9 +149,11 @@ function HistorySession() {
                                 {pastSessions.map((session) => (
                                 <div
                                     key={session.sessionId}
-                                    className="border border-gray-300 bg-white rounded-md p-4 shadow"
+                                    onClick={() => navigate(`/session/${session.sessionId}`)}
+                                    className="cursor-pointer border border-gray-300 bg-slate-200 
+                                    rounded-md p-4 shadow hover:shadow-md hover:bg-slate-400 transition duration-500"
                                 >
-                                    <p className="font-semibold text-gray-800">Game: {session.gameName}</p>
+                                    <p className="font-semibold text-slate-800">Game: {session.gameName}</p>
                                     <p>Session ID: {session.sessionId}</p>
                                 </div>
                                 ))}
