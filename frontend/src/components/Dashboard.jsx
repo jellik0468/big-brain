@@ -130,20 +130,22 @@ function Dashboard() {
     return (
         <>
             <div className="">
-                <div className='m-5 pb-5 border-b'>
-                    <div className='flex gap-4'>
+                <div className='border-b'>
+                    <div className="flex items-center justify-between mx-10 mt-10 pb-4">
+                        <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
                         <button
-                            className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200'
+                            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
                             onClick={() => {
                                 setStep('confirm');
-                                setOpenAddGame(true)
+                                setOpenAddGame(true);
                             }}
                         >
-                            Add Game
+                          Add Game
                         </button>
                     </div>
-                    <h2 className='text-4xl font-semibold text-center'>Dashboard</h2>
+
                 </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-3">
                     {Object.values(games).map(game => (
                         <div 
@@ -165,7 +167,7 @@ function Dashboard() {
                             } seconds</p>
                             <div className='flex gap-4 mt-3'>
                                 <button
-                                    className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200'
+                                    className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedGameId(game.gameId);
@@ -177,7 +179,7 @@ function Dashboard() {
                                 </button>
                                 {game.active && (
                                     <button
-                                        className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200'
+                                        className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setSelectedGameId(game.gameId);

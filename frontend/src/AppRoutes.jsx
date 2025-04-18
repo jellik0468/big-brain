@@ -7,12 +7,14 @@ import NavBar from './components/NavBar';
 import EditQuestion from './components/EditQuestion';
 import AdminSessionPage from './components/AdminSessionPage';
 import HistorySession from './components/HistorySessions';
+import JoinSession from './components/JoinSession';
 
 function AppRoutes({ token, setToken }) {
 
     return (
         <>
             <Routes>
+                <Route path="/join/:sessionId" element={<JoinSession />} />
                 <Route
                     path="/" 
                     element={token ? <Navigate replace to="/dashboard" /> : <Login setToken={setToken} />} 
