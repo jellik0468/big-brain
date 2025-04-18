@@ -10,7 +10,11 @@ function EditGame() {
 	const { games, setGames, fetchGames } = useGames();
   	const [game, setGame] = useState(null);
 
-	  useEffect(() => {
+	useEffect(() => {
+		fetchGames();
+	}, []);
+
+	useEffect(() => {
 		// Load from context
 		const matchedGame = Object.values(games).find(
 			(g) => String(g.gameId) === String(params.gameId)

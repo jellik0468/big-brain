@@ -17,6 +17,7 @@ export const SessionProvider = ({ children }) => {
     });
 
     // Fetches the session status or results from the backend
+    // also when we fetch we add gameId into the backend for later use.
     const fetchSession = async (sessionId, token, gameId = null) => {
         try {
             setLoadingSession(true);
@@ -27,6 +28,8 @@ export const SessionProvider = ({ children }) => {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
+            console.log(statusRes);
+
             const sessionStatus = statusRes.data.results;
 
             // Step 2: If session has ended, get final results instead
@@ -35,7 +38,6 @@ export const SessionProvider = ({ children }) => {
                 `http://localhost:5005/admin/session/${sessionId}/results`,
                 { headers: { 'Authorization': `Bearer ${token}` } }
                 );
-
                 setSessionData({ ...resultsRes.data.results, gameId });
             } else {
                 setSessionData({ ...sessionStatus, gameId });

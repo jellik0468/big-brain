@@ -30,6 +30,10 @@ function Dashboard() {
         navigate(`/session/${sessionId}`);
     }
 
+    useEffect(() => {
+		fetchGames();
+	}, []);
+
     // Function to update game via PUT API
     const handleCreateGame = async () => {
         try {
