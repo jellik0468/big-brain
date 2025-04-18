@@ -1,9 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from 'axios';
+import Modal from './Modal';
 
 function EditQuestion() {
     const params = useParams();
+    const navigate = useNavigate();
     const token = localStorage.getItem('token');
 
     //setting up all the state field to keep track of value
@@ -17,6 +19,12 @@ function EditQuestion() {
     const [answers, setAnswers] = useState(["", ""]);
     const [correctAnswers, setCorrectAnswers] = useState([]);
     const [imageInputKey, setImageInputKey] = useState(Date.now());
+
+    //modal
+    const [openEmptyQuestionModal, setOpenEmptyQuestionModal] = useState(false);
+    const [openLessThanTwoAnswerModal, setOpenLessThanTwoAnswerModal] = useState(false);
+    const [openNoCorrectAnswerModal, setOpenNoCorrectAnswerModal] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
 
     // When we load or refresh the page call fetchGameAndQuestion reload the page
     useEffect(() => {
@@ -89,9 +97,28 @@ function EditQuestion() {
 
     // Sending api to backend to save current edit
     const handleSaveQuestion = async () => {
+        if (!questionText || questionText.trim() === '') {
+            setModalMessage("You can't have an empty question!")
+            setOpenEmptyQuestionModal(true);
+            return;
+        }
+        
+        // Ensure at least two valid answers.
         const nonEmptyAnswers = answers.filter(a => a.trim() !== "");
         if (nonEmptyAnswers.length < 2) {
-            alert('Please enter at least two non-empty answers');
+            setModalMessage("You can't have less than two valid answers");
+            setOpenLessThanTwoAnswerModal(true);
+            return;
+        }
+
+        // Ensure at least one answer is correct
+        const nonEmptyCorrectAnswers = correctAnswers
+            .map(i => answers[i]) // convert index to string answer
+            .filter(a => a && a.trim() !== "");
+            
+        if (nonEmptyCorrectAnswers.length < 1) {
+            setModalMessage("You need to have at least one correct answer");
+            setOpenNoCorrectAnswerModal(true);
             return;
         }
 
@@ -138,11 +165,16 @@ function EditQuestion() {
             });
 
             alert("Question updated successfully!");
+            navigate(`/game/${params.gameId}`);
 
         } catch (err) {
             console.error(err);
             alert("Failed to update question.");
         }
+    };
+
+    const handleGoBack = () => {
+        navigate(`/game/${params.gameId}`);
     };
 
     return (
@@ -300,12 +332,59 @@ function EditQuestion() {
             </div>
             
             {/* Save button */}
-            <button
-                onClick={handleSaveQuestion}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            >
-                Save Question
-            </button>
+            <div className="flex gap-4">
+                <button
+                    onClick={handleSaveQuestion}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Save Question
+                </button>
+
+                {/* Go back button */}
+                <button
+                    onClick={handleGoBack}
+                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                    Go back
+                </button>
+
+            </div>
+
+            <Modal open={openEmptyQuestionModal} onClose={() => setOpenEmptyQuestionModal(false)}>
+                <div className="text-center">
+                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+                    <button
+                        onClick={() => setOpenEmptyQuestionModal(false)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
+
+            <Modal open={openLessThanTwoAnswerModal} onClose={() => setOpenLessThanTwoAnswerModal(false)}>
+                <div className="text-center">
+                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+                    <button
+                        onClick={() => setOpenLessThanTwoAnswerModal(false)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
+
+            <Modal open={openNoCorrectAnswerModal} onClose={() => setOpenNoCorrectAnswerModal(false)}>
+                <div className="text-center">
+                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+                    <button
+                        onClick={() => setOpenNoCorrectAnswerModal(false)}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
         </div>
     )
 }   

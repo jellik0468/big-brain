@@ -250,7 +250,7 @@ function Dashboard() {
                                 <button
                                     className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
                                     onClick={() => {
-                                        const link = `${window.location.origin}/play/:sessionId`;
+                                        const link = `${window.location.origin}/play/${sessionId}`;
                                         navigator.clipboard.writeText(link);
                                         setCopied('true');
                                     }}
