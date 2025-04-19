@@ -40,8 +40,13 @@ function JoinSession() {
     	  	// Navigate to the play screen
     	  	navigate(`/play/${sessionId}`);
     	} catch (err) {
-    	  	console.log(err);
-			setError('Failed to join session');
+			if (err.response.data.error === "Session has already begun") {
+				setError("You can't join the session after it has begun");
+			} else {
+				console.log(err);
+				setError('Failed to join session');
+			}
+
     	} finally {
     	  	setLoading(false);
     	}

@@ -111,12 +111,13 @@ function EditQuestion() {
             return;
         }
 
+        // storing the correct answers indices
+        const cleanedCorrectIndexes = correctAnswers.filter(
+            index => answers[index] && answers[index].trim() !== ""
+        );
+
         // Ensure at least one answer is correct
-        const nonEmptyCorrectAnswers = correctAnswers
-            .map(i => answers[i]) // convert index to string answer
-            .filter(a => a && a.trim() !== "");
-            
-        if (nonEmptyCorrectAnswers.length < 1) {
+        if (cleanedCorrectIndexes.length < 1) {
             setModalMessage("You need to have at least one correct answer");
             setOpenNoCorrectAnswerModal(true);
             return;
@@ -147,7 +148,7 @@ function EditQuestion() {
                 youtube: youtubeUrl,
                 image: imageBase64,
                 answers: answers,
-                correctAnswers: correctAnswers.map(i => answers[i]), // Convert index to literal answer string
+                correctAnswers: cleanedCorrectIndexes.map(i => answers[i]), // Convert index to literal answer string
             }
 
             // Step 4 : replace the old question we are editing with the new value 
