@@ -8,6 +8,7 @@ import EditQuestion from './components/EditQuestion';
 import AdminSessionPage from './components/AdminSessionPage';
 import HistorySession from './components/HistorySessions';
 import JoinSession from './components/JoinSession';
+import PlaySessionPage from './components/PlaySessionPage';
 
 function AppRoutes({ token, setToken }) {
 
@@ -15,6 +16,7 @@ function AppRoutes({ token, setToken }) {
         <>
             <Routes>
                 <Route path="/join/:sessionId" element={<JoinSession />} />
+                <Route path="/play/:sessionId" element={<PlaySessionPage />} />
                 <Route
                     path="/" 
                     element={token ? <Navigate replace to="/dashboard" /> : <Login setToken={setToken} />} 
