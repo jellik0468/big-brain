@@ -25,11 +25,6 @@ function EditQuestion() {
     const [openLessThanTwoAnswerModal, setOpenLessThanTwoAnswerModal] = useState(false);
     const [openNoCorrectAnswerModal, setOpenNoCorrectAnswerModal] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
-
-    // When we load or refresh the page call fetchGameAndQuestion reload the page
-    useEffect(() => {
-        fetchGameAndQuestion();
-    }, []);
     
     // Updates question when question type changes, we clear every answers entered when update
     useEffect(() => {
@@ -44,34 +39,43 @@ function EditQuestion() {
         }
     }, [questionType]);
 
-    // API call to get the question.
-    const fetchGameAndQuestion = async () => {
-        try {
-            const res = await axios.get('http://localhost:5005/admin/games', {
-                headers: { 'Authorization': `Bearer ${token}`},
-            });
+    // When we load or refresh the page call fetchGameAndQuestion reload the page
+    useEffect(() => {
+        const fetchGameAndQuestion = async () => {
+            try {
+                const res = await axios.get('http://localhost:5005/admin/games', {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const game = res.data.games.find(g => String(g.id) === params.gameId);
+                const q = game?.questions[params.questionId];
+                if (!q) return alert("Question not found!!!");
 
-            // Matching the gameId in website with result fetched
-            const game = res.data.games.find(g => {
-                return String(g.id) === String(params.gameId);
-            });
+                // Loading all the existing value if not exist use default
+                setQuestion(q);
+                setQuestionType(q.type || "single");
+                setQuestionText(q.text || "");
+                setDuration(q.duration || 30);
+                setPoints(q.points || 0);
+                
+                // pull media out of the database else dEfalt it  to empty
+                const media = q.media || {};
+                setYoutubeUrl(media.videoUrl || "");
+                setImageBase64(media.imageUrl || "");
 
-            // Grabbing the question by index in the question array with the param passed in.
-            const q = game?.questions[params.questionId];
-            if (!q) return alert("Question not found!!!");
-            setQuestion(q);
-            setQuestionType(q.type || "single");
-            setQuestionText(q.text ?? "");
-            setDuration(q.duration || 30);
-            setPoints(q.points || 0);
-            setYoutubeUrl(q.youtube ?? "");
-            setImageBase64(q.image ?? "");
-            setCorrectAnswers(q.correctAnswers ?? []);
-            
-        } catch (err) {
-            alert(err);
-        }
-    }
+                setAnswers(q.answers || ["", ""]);
+                // stores correct answers by index of answers
+                setCorrectAnswers(
+                    Array.isArray(q.correctAnswers)
+                    ? q.correctAnswers.map(ans => q.answers.indexOf(ans)).filter(i => i >= 0)
+                    : []
+                );
+            } catch (err) {
+                alert(err);
+            }
+        };
+    
+        fetchGameAndQuestion();
+    }, [params.gameId, params.questionId, token]);
 
     // Converting image
     const handleImageUpload = (e) => {
@@ -145,8 +149,10 @@ function EditQuestion() {
                 text: questionText,
                 duration: duration,
                 points: points,
-                youtube: youtubeUrl,
-                image: imageBase64,
+                media: {
+                    imageUrl: imageBase64 || null,
+                    videoUrl: youtubeUrl || null
+                },
                 answers: answers,
                 correctAnswers: cleanedCorrectIndexes.map(i => answers[i]), // Convert index to literal answer string
             }
