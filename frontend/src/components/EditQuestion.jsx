@@ -44,7 +44,7 @@ function EditQuestion() {
         const fetchGameAndQuestion = async () => {
             try {
                 const res = await axios.get('http://localhost:5005/admin/games', {
-                    headers: { Authorization: `Bearer ${token}` },
+                    headers: { 'Authorization': `Bearer ${token}` },
                 });
                 const game = res.data.games.find(g => String(g.id) === params.gameId);
                 const q = game?.questions[params.questionId];

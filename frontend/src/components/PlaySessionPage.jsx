@@ -2,35 +2,52 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
+// Helper function to get youtube link and play with iframe
+function YouTubeEmbed({ url }) {
+    if (!url) return null;
+
+    // extrac Youtube video ID
+    const id = url.split('v=')[1]?.split('&')[0] ?? '';
+    const embedUrl = `https://www.youtube.com/embed/${id}`;
+    return (
+        <div className="mb-4 aspect-video w-full rounded overflow-hidden">
+            <iframe
+                title="YouTube preview"
+                aria-label={'Embedded YouTube video'}
+                src={embedUrl}
+                allow="autoplay;"
+                className="w-full h-full"
+            />
+        </div>
+    );
+}
+
+// Helper funcction to place  media
+// If video doesn't exist check image else no media shown
 function QuestionMedia({ media }) {
     if (!media) return null;
-  
-    // if the question has an image
-    if (media.imageUrl) {
-      return (
-        <img
-          src={media.imageUrl}
-          alt="Question media"
-          className="mb-4 max-w-full rounded"
-        />
-      );
-    }
-  
+
     // if the question has a video
     if (media.videoUrl) {
-      return (
-        <video
-          src={media.videoUrl}
-          controls
-          className="mb-4 w-full rounded"
-        >
-          Your browser does not support the video tag.
-        </video>
-      );
+        return (
+            <YouTubeEmbed url={media.videoUrl} />
+        );
+    }
+
+    // Else if a image exist
+    if (media.imageUrl) {
+        return (
+            <img
+                src={media.imageUrl}
+                alt="Question media"
+                className="mb-4 max-w-full object-contain rounded"
+            />
+        );
     }
   
     return null;
-  }
+}
+
   
 function PlaySessionPage() {
     const { sessionId } = useParams();
@@ -275,14 +292,71 @@ function PlaySessionPage() {
 
     // Final performance screen
 
+    if (sessionEnded) {
+        if (loadingResults || !results) {
+            return <p className="text-center mt-10">Loading final results…</p>;
+        }
+        return (
+            <div className="min-h-screen w-full bg-gray-900 text-white flex items-center justify-center px-4">
+                <div className="max-w-5xl w-full bg-gray-800 text-white rounded-lg shadow-lg p-6 overflow-auto">
+                    <h2 className="text-3xl font-bold mb-6 border-b border-gray-700 pb-2">Your Results</h2>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-gray-700 text-sm uppercase tracking-wider">
+                                        <th className="py-3 px-4 rounded-tl-lg">#</th>
+                                        <th className="py-3 px-4">Question</th>
+                                        <th className="py-3 px-4">Your Answer</th>
+                                        <th className="py-3 px-4">Correct</th>
+                                        <th className="py-3 px-4">Points</th>
+                                        <th className="py-3 px-4 rounded-tr-lg">Time (s)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {results.map((r, i) => {
+                                        const q = askedQuestions.find(
+                                            q => q.isoTimeLastQuestionStarted === r.questionStartedAt
+                                        ) || {};
+                                    
+                                        const timeTaken = r.answeredAt
+                                            ? Math.ceil(
+                                                (new Date(r.answeredAt).getTime() -
+                                                new Date(r.questionStartedAt).getTime()) / 1000
+                                            )
+                                            : 0;
+                                          
+                                        const pts = r.correct ? (q.points || 0) : 0;
+                                          
+                                        return (
+                                            <tr
+                                                key={i}
+                                                className={`border-t border-gray-700 ${
+                                                    i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-850'
+                                                } hover:bg-gray-700 transition duration-200`}
+                                            >
+                                                <td className="py-3 px-4">{i + 1}</td>
+                                                <td className="py-3 px-4 break-words">{q.text}</td>
+                                                <td className="py-3 px-4 break-words">{r.answers.join(', ')}</td>
+                                                <td className="py-3 px-4">{r.correct ? '✔️' : '❌'}</td>
+                                                <td className="py-3 px-4">{pts}</td>
+                                                <td className="py-3 px-4">{timeTaken}</td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
     // Question UI
     return (
         <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center px-4">
             <div className="max-w-xl w-full p-6 mt-10 bg-gray-800 rounded-lg shadow-lg text-white">
+                {/* Inserting media */}
                 <QuestionMedia media={question.media} />
-                <h2 className="text-xl font-bold mb-2 text-white">
-                    {question.text}
-                </h2>
+
                 {/* Question text */}
                 <h2 className="text-2xl font-bold mb-3">{question.text}</h2>
     
