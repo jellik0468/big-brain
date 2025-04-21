@@ -152,6 +152,7 @@ function Dashboard() {
                     <div className="flex items-center justify-between mx-10 mt-10 pb-4">
                         <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
                         <button
+                            aria-label="Add a new game"
                             className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
                             onClick={() => {
                                 setStep('confirm');
@@ -168,6 +169,7 @@ function Dashboard() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-3">
                     {Object.values(games).map(game => (
                         <div 
+                            aria-label={`Open game ${game.gameName} edit page`}
                             key={game.gameId}
                             className="border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl bg-zinc-700 text-white"
                             onClick={() => navigate(`/game/${game.gameId}`)}
@@ -192,6 +194,7 @@ function Dashboard() {
                                             setStep('confirm');
                                             setOpenDeleteGame(true);
                                         }}
+                                        aria-label={`Delete game ${game.gameName}`}
                                     >
                                         Delete Game
                                 </button>
@@ -210,6 +213,7 @@ function Dashboard() {
                                         setStep('confirm');
                                         setOpenStartGame(true);
                                     }}
+                                    aria-label={`Start game ${game.gameName}`}
                                 >
                                     Start Game
                                 </button>
@@ -221,7 +225,8 @@ function Dashboard() {
                                             setSelectedGameId(game.gameId);
                                             setStep('confirm');
                                             setOpenStopGame(true);
-                                        }}    
+                                        }}
+                                        aria-label={`Stop game ${game.gameName}`}
                                     >
                                         Stop Game
                                     </button>
@@ -356,12 +361,15 @@ function Dashboard() {
                                         navigator.clipboard.writeText(link);
                                         setCopied('true');
                                     }}
+                                    aria-label="Copy join link to clipboard"
                                 >
                                     Copy Join Link
                                 </button>
 
                                 {copied && (
-                                    <p className="mt-2 text-sm text-red-600 mb-3 font-medium">Link copied to clipboard!</p>
+                                    <p className="mt-2 text-sm text-red-600 mb-3 font-medium" aria-live="assertive">
+                                        Link copied to clipboard!
+                                    </p>
                                 )}
                                 <p className="text-sm text-gray-700">
                                     Manage your past game sessions from the admin panel.

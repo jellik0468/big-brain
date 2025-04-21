@@ -17,6 +17,7 @@ function YouTubeEmbed({ url }) {
                 aria-label={'Embedded YouTube video'}
                 src={embedUrl}
                 allow="autoplay;"
+                aria-hidden="true"
                 className="w-full h-full"
             />
         </div>

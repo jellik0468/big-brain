@@ -52,7 +52,9 @@ function Register(props) {
         <>
             <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
 
-                <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
+                <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900"
+                    aria-label="Register heading"
+                >
                     Register
                 </h2>
     
@@ -64,11 +66,13 @@ function Register(props) {
                         <div className="mt-2">
                             <input
                             value={email}
+                            aria-label="Email address"
                             onKeyDown={e => {if (e.key === 'Enter') {
                                 register();
                             }}}
                             onChange={e => setEmail(e.target.value)}
                             type="text"
+                            aria-required="true"
                             className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
                             -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
                             />
@@ -82,6 +86,8 @@ function Register(props) {
                         <div className="mt-2">
                             <input
                             value={name}
+                            aria-label="User Name"
+                            aria-required="true"
                             onKeyDown={e => {if (e.key === 'Enter') {
                                 register();
                             }}}
@@ -104,6 +110,8 @@ function Register(props) {
                         <div className="mt-2">
                             <input
                             value={password}
+                            aria-label="Password"
+                            aria-required="true"
                             onKeyDown={e => {if (e.key === 'Enter') {
                                 register();
                             }}}
@@ -128,6 +136,8 @@ function Register(props) {
                             onKeyDown={e => {if (e.key === 'Enter') {
                                 register();
                             }}}
+                            aria-label="Confirm Password"
+                            aria-required="true"
                             onChange={e => setConfirmPassword(e.target.value)}
                             type="password"
                             className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
@@ -143,9 +153,11 @@ function Register(props) {
                         </div>)}
 
                         <button
+                            aria-label="Submit registration form"
                             onClick={register}
                             className="mt-5 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6
-                            font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 
+                            focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                             Register
                         </button>
@@ -153,7 +165,11 @@ function Register(props) {
     
                     <p className="mt-10 text-center text-sm/6 text-gray-500">
                         Already a member?{' '}
-                    <Link to="/Login" className="font-semibold text-indigo-600 hover:text-indigo-500">Login Now!</Link>
+                    <Link to="/Login" className="font-semibold text-indigo-600 hover:text-indigo-500"
+                        aria-label="Navigate to login page"
+                    >
+                        Login Now!
+                    </Link>
                     </p>
                 </div>
             </div>
