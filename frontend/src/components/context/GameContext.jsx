@@ -12,10 +12,14 @@ export const GameProvider = ({ children }) => {
 
     const token = localStorage.getItem("token");
 
-    // Fetch games once on mount
+    // Fetch games once on mount only when with token
     useEffect(() => {
-        fetchGames();
-    }, []);
+        if (token) {
+            fetchGames();
+        } else {
+            setLoading(false);
+        }
+    }, [token]);
 
     // Refresh page function for children to call
     const fetchGames = async () => {

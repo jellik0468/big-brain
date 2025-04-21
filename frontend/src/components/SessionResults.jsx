@@ -98,7 +98,7 @@ function SessionResults({ sessionId }) {
 				<span className="block sm:inline">{error}</span>
 		  	</div>
 		);
-	  }
+	}
 
 	return (
 	    <div className="p-6">

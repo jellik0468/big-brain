@@ -15,12 +15,13 @@ function Register(props) {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [error, setError] = useState('');
 
     const navigate =  useNavigate();
 
     const register = async () => {
         if (password != confirmPassword) {
-            alert('Please double check your password!');
+            setError('Password does not match!')
             return;
         }
 
@@ -36,7 +37,11 @@ function Register(props) {
             localStorage.setItem('owner', email);
             navigate('/dashboard');
         } catch (err) {
-            alert(err.res.data.error)
+            if (err.response.data.error === 'Email address already registered') {
+                setError('This Email address already registered, maybe try logging in');
+            } else {
+                setError('Failed to register');
+            }
         }
     }
 
@@ -129,10 +134,15 @@ function Register(props) {
                     </div>
     
                     <div>
+                        {error && (
+                        <div className='text-red-600 font-medium'>
+                            {error}
+                        </div>)}
+
                         <button
-                        onClick={register}
-                        className="mt-10 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6
-                        font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                            onClick={register}
+                            className="mt-5 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6
+                            font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                             Register
                         </button>

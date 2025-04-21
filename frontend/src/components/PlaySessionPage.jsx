@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import videoBg from '../assets/videoBg.mp4'
 
 // Helper function to get youtube link and play with iframe
 function YouTubeEmbed({ url }) {
@@ -273,16 +274,41 @@ function PlaySessionPage() {
     };
 
     // Render logic
+    if (sessionEnded && !question) {
+        return (
+            <div className="flex items-center justify-center h-screen bg-white">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded shadow-lg text-center">
+                    <span className="block text-lg font-semibold">
+                        The session has been ended by the host
+                    </span>
+                </div>
+            </div>
+        )
+    }
+
+
     if (loadingStatus) {
         return <p className="text-center mt-10">Checking game status…</p>;
     }
 
-    // Will be replaced by lobby later
+    // Background video when player is in lobby waiting
     if (!hasStarted) {
         return (
-            <p className="text-center mt-10 font-medium text-lg">
-              Please wait for the host to start the game…
-            </p>
+            <div className="relative w-full h-screen bg-black">
+                {/* Text Header area */}
+                <div className="w-full h-[100px] flex items-center px-10">
+                    <p className="font-medium text-white text-6xl">
+                        Please wait for the host to start the game…
+                    </p>
+                </div>
+    
+                <video
+                    src={videoBg}
+                    autoPlay
+                    loop
+                    className="absolute w-full h-[calc(100vh-100px)] object-contain bg-black"
+                />
+            </div>
         );
     }
 

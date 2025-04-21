@@ -21,6 +21,7 @@ function EditQuestion() {
     const [imageInputKey, setImageInputKey] = useState(Date.now());
 
     //modal
+    const [openSaveQuestionModal, setOpenSaveQuestionModal] = useState(false);
     const [openEmptyQuestionModal, setOpenEmptyQuestionModal] = useState(false);
     const [openLessThanTwoAnswerModal, setOpenLessThanTwoAnswerModal] = useState(false);
     const [openNoCorrectAnswerModal, setOpenNoCorrectAnswerModal] = useState(false);
@@ -170,9 +171,8 @@ function EditQuestion() {
             }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
-            alert("Question updated successfully!");
-            navigate(`/game/${params.gameId}`);
+            setModalMessage('Question edit saved successfully!')
+            setOpenSaveQuestionModal(true);
 
         } catch (err) {
             console.error(err);
@@ -356,6 +356,25 @@ function EditQuestion() {
                 </button>
 
             </div>
+
+            <Modal open={openSaveQuestionModal} onClose={() => {
+                    setOpenSaveQuestionModal(false)
+                    navigate(`/game/${params.gameId}`);
+                }}>
+                <div className="text-center">
+                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+                    <button
+                        onClick={() => {
+                            setOpenSaveQuestionModal(false)
+                            navigate(`/game/${params.gameId}`);
+                        }}
+                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"    
+                    >
+                        Ok
+                    </button>
+
+                </div>
+            </Modal>
 
             <Modal open={openEmptyQuestionModal} onClose={() => setOpenEmptyQuestionModal(false)}>
                 <div className="text-center">
