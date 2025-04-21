@@ -28,8 +28,6 @@ export const SessionProvider = ({ children }) => {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
-            console.log(statusRes);
-
             const sessionStatus = statusRes.data.results;
 
             // Step 2: If session has ended, get final results instead

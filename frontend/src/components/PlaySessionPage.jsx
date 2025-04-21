@@ -346,10 +346,10 @@ function PlaySessionPage() {
                                 </tbody>
                             </table>
                         </div>
-                    </div>
                 </div>
-            );
-        }
+            </div>
+        );
+    }
     // Question UI
     return (
         <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center px-4">

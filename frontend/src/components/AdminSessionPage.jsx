@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useGames } from './context/GameContext';
 import { useSession } from './context/SessionContext';
-import SessionResults from "../SessionResults";
+import SessionResults from "./SessionResults";
 import axios from 'axios';
 
 function AdminSessionPage() {
