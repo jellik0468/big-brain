@@ -285,7 +285,7 @@ function Dashboard() {
                 {step === 'confirm' ? (
                     <>
                         <div className="text-center w-56">
-                            <h3 className="text-lg font-black text-gray-800">Delete a existing Game</h3>
+                            <h3 className="text-lg font-black text-red-800">Are you sure you want to delete this game</h3>
                         </div>
 
                         <div className='flex justify-between gap-2'>

@@ -95,7 +95,7 @@ export const SessionProvider = ({ children }) => {
          }}>
             {children}
         </SessionContext.Provider>
-    );
+  );
 };
 
 export const useSession = () => useContext(SessionContext);

@@ -296,8 +296,8 @@ function PlaySessionPage() {
         return (
             <div className="relative w-full h-screen bg-black">
                 {/* Text Header area */}
-                <div className="w-full h-[100px] flex items-center px-10">
-                    <p className="font-medium text-white text-6xl">
+                <div className="w-full h-[100px] flex items-center z-10 px-10 relative">
+                    <p className="font-medium text-white text-2xl sm:text-4xl md:text-4xl lg:text-6xl">
                         Please wait for the host to start the game…
                     </p>
                 </div>
@@ -393,7 +393,7 @@ function PlaySessionPage() {
     
                 {/* Answer options */}
                 <form className="space-y-3">
-                    {question.answers.map((ans, index) => {
+                    {question?.answers?.map((ans, index) => {
                         const id = `opt-${index}`;
                         const isChecked = question.type === 'multiple'
                             ? Array.isArray(selected) && selected.includes(index)
