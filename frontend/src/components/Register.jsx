@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
     BrowserRouter as Router,
@@ -19,12 +19,15 @@ function Register(props) {
 
     const navigate =  useNavigate();
 
-    const register = async () => {
+    useEffect(() => {
         if (password != confirmPassword) {
             setError('Password does not match!')
-            return;
+        } else {
+            setError('')
         }
+    }, [password, confirmPassword])
 
+    const register = async () => {
         try {
             const res = await axios.post('http://localhost:5005/admin/auth/register', {
                 email: email,

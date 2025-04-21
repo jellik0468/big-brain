@@ -9,7 +9,7 @@ function AdminSessionPage() {
     const { sessionData, fetchSession, loadingSession } = useSession();
     const { games, fetchGames } = useGames();
     const params = useParams();
-  
+    console.log(sessionData)
     const token = localStorage.getItem('token');
     // countdown timer state
     const [remainingTime, setRemainingTime] = useState(0);
@@ -151,10 +151,12 @@ function AdminSessionPage() {
                         </button>
                     </div>
                 </div>
-            ) : (
+            ) : sessionData && !sessionData.active ? (
                 // If session exist, and is not active, the game should have results
                 // 3 session finished (active === false) show results
                 <SessionResults sessionId={params.sessionId} />
+            ) : (
+                <p>Loading session results...</p>
             )}
         </>
     );

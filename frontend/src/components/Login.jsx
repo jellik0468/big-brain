@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import {
     BrowserRouter as Router,
@@ -13,8 +13,13 @@ function Login(props) {
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
     const navigate =  useNavigate();
+
+    useEffect(() => {
+        setError('');
+    }, [password, email])
 
     const login = async () => {
         try {
@@ -28,7 +33,11 @@ function Login(props) {
             localStorage.setItem('owner', email);
             navigate('/dashboard');
         } catch (err) {
-            alert(err.res.data.error)
+            if (err.response.data.error === 'Invalid username or password') {
+                setError('Invalid username or password');
+            } else {
+                console.log(err);
+            }
         }
     }
 
@@ -83,6 +92,11 @@ function Login(props) {
                 </div>
     
                 <div>
+                    {error && (
+                        <div className='text-red-600 font-medium'>
+                            {error}
+                        </div>)}
+
                     <button
                     onClick={login}
                     className="mt-10 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6

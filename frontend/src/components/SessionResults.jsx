@@ -22,7 +22,7 @@ function SessionResults({ sessionId }) {
 	      	try {
 	        	const { data } = await axios.get(
 	        	  	`http://localhost:5005/admin/session/${sessionId}/results`,
-	        	  	{ headers: { Authorization: `Bearer ${token}` } }
+	        	  	{ headers: { 'Authorization': `Bearer ${token}` } }
 	        	);
 
 	        	const players = Array.isArray(data.results) ? data.results : [];

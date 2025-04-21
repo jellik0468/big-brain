@@ -133,15 +133,26 @@ function Dashboard() {
                 <div className='border-b'>
                     <div className="flex items-center justify-between mx-10 mt-10 pb-4">
                         <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
-                        <button
-                            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
-                            onClick={() => {
-                                setStep('confirm');
-                                setOpenAddGame(true);
-                            }}
-                        >
-                          Add Game
-                        </button>
+                        <div className='flex gap-2'>
+                            <button
+                                className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
+                                onClick={() => {
+                                    setStep('confirm');
+                                    setOpenAddGame(true);
+                                }}
+                            >
+                                Add Game
+                            </button>
+                            <button
+                                className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
+                                onClick={() => {
+                                    setStep('confirm');
+                                    setOpenDeleteGame(true);
+                                }}
+                            >
+                                Delete Game
+                            </button>
+                        </div>
                     </div>
 
                 </div>
