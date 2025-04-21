@@ -16,6 +16,7 @@ function AppRoutes({ token, setToken }) {
         <>
             <Routes>
                 <Route path="/join/:sessionId" element={<JoinSession />} />
+                <Route path="/join" element={<JoinSession />} />
                 <Route path="/play/:sessionId" element={<PlaySessionPage />} />
                 <Route
                     path="/" 

@@ -53,6 +53,7 @@ function QuestionMedia({ media }) {
   
 function PlaySessionPage() {
     const { sessionId } = useParams();
+    const { games } = useGames();
     const playerId = localStorage.getItem(`player_${sessionId}`);
 
     // 1. Status polling

@@ -56,7 +56,7 @@ function EditQuestion() {
                 setQuestionType(q.type || "single");
                 setQuestionText(q.text || "");
                 setDuration(q.duration || 30);
-                setPoints(q.points || 0);
+                setPoints(q.points || 1);   //default 1 point
                 
                 // pull media out of the database else dEfalt it  to empty
                 const media = q.media || {};
@@ -71,7 +71,7 @@ function EditQuestion() {
                     : []
                 );
             } catch (err) {
-                alert(err);
+                console.log(err);
             }
         };
     

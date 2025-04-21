@@ -1,0 +1,63 @@
+{
+  "owner": "1",
+  "active": null,
+  "oldSessions": [],
+  "gameName": "MyFirstGame",
+  "gameId": 87654321,
+  "id": 87654321,
+  "prevSessionId": null,
+  "thumbnailUrl": null,
+  "questions": [
+    {
+			"questionId": 1,
+      "type": "multiple",
+      "text": "Which of the following are programming languages?",
+      "duration": 20,
+      "points": 10,
+      "media": {},
+      "answers": ["Python", "HTML", "JavaScript", "Google"],
+      "correctAnswers": ["Python", "JavaScript"]
+    },
+    {
+      "type": "single",
+      "text": "What is the capital city of Japan?",
+      "duration": 15,
+      "points": 10,
+      "media": {},
+      "answers": ["Seoul", "Beijing", "Tokyo", "Bangkok"],
+      "correctAnswers": ["Tokyo"]
+    },
+    {
+      "type": "judgement",
+      "text": "The Earth is flat.",
+      "duration": 10,
+      "points": 5,
+      "media": {},
+      "answers": ["True", "False"],
+      "correctAnswers": ["False"]
+    },
+    {
+      "type": "multiple",
+      "text": "Which of these animals can fly?",
+      "duration": 15,
+      "points": 10,
+      "media": {},
+      "answers": ["Eagle", "Penguin", "Bat", "Ostrich"],
+      "correctAnswers": ["Eagle", "Bat"]
+    },
+    {
+      "type": "single",
+      "text": "What does HTTP stand for?",
+      "duration": 20,
+      "points": 10,
+      "media": {},
+      "answers": [
+        "HyperText Transfer Protocol",
+        "High Transfer Text Program",
+        "Hyperlink Text Transmission Path",
+        "Host Transfer Terminal Protocol"
+      ],
+      "correctAnswers": ["HyperText Transfer Protocol"]
+    }
+  ]
+}

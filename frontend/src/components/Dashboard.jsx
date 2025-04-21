@@ -25,6 +25,8 @@ function Dashboard() {
     const [sessionId, setSessionId] = useState(null);
     const [copied, setCopied] = useState(false);
 
+    const [uploadedGame, setUploadedGame] = useState(null);
+
     const owner = localStorage.getItem('owner');
     const token = localStorage.getItem('token');
 
@@ -145,6 +147,7 @@ function Dashboard() {
         }
     };
 
+
     return (
         <>
             <div className="">
@@ -240,49 +243,109 @@ function Dashboard() {
             {/* Modal for add game button*/}
             <Modal open={openAddGame} onClose={() => {
                 setStep('confirm');
+                setUploadedGame(null);
                 setOpenAddGame(false);
             }}>
-                {step === 'confirm' ? (
-                    <div className="text-center w-56">
-                        <div className="text-center w-56">
-                            <h3 className="text-lg font-black text-gray-800">Create New Game</h3>
-                            <label htmlFor="gameName">Game Name</label>
-                            <input type="text" id="gameName" className='mb-2 border rounded-sm'
-                                onChange={(e) =>setGameName(e.target.value)} value={gameName}/>
-                        </div>
-                        <div>
-                            <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                                onClick={handleCreateGame}>
-                                Create
-                            </button>
-                            <button
-                                className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                                onClick={() => {setOpenAddGame(false)}}
-                            >
-                                Cancel
-                            </button>
-                        </div>
+
+            {step === 'confirm' ? (
+                <div className="text-center w-72 mx-auto p-4 rounded-lg">
+                    <h3 className="text-xl font-bold text-gray-800 mb-4">
+                        Create New Game
+                    </h3>
+            
+                    {/* Game Name input (disabled if JSON uploaded) */}
+                    <div className="text-left mb-3">
+                        <label htmlFor="gameName" className="block text-sm font-medium text-gray-700 mb-1">
+                            Game Name
+                        </label>
+                        <input
+                            type="text"
+                            id="gameName"
+                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none 
+                            focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                            onChange={e => setGameName(e.target.value)}
+                            value={gameName}
+                            disabled={!!uploadedGame}
+                        />
                     </div>
-                ) : step === 'finishAddGame' ? (
-                    <>
-                        <div className='text-center'>
-                            <p className='font-semibold text-lg'> Game have been Added!</p>
-                            <button 
-                                className='btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'
-                                onClick={() => {
-                                    setStep('confirm');
-                                    setOpenAddGame(false);
-                                }}
-                            >
-                                OK
-                            </button>
-                        </div>
-                    </>
-                )
-                : null }
+            
+                    {/* JSON upload input */}
+                    <div className="text-left mb-4">
+                        <label htmlFor="uploadJson" className="block text-sm font-medium text-gray-700 mb-1">
+                            Or upload full game JSON:
+                        </label>
+                        <input
+                            type="file"
+                            accept=".json"
+                            id="uploadJson"
+                            className="w-full text-sm text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded-md 
+                            file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-100 hover:file:bg-gray-200"
+                            onChange={e => {
+                                const file = e.target.files[0];
+                                if (!file) return;
+                                const reader = new FileReader();
+                                reader.onload = () => {
+                                try {
+                                    const data = JSON.parse(reader.result);
+                                    if (
+                                        typeof data.gameName !== 'string' ||
+                                        !data.gameId ||
+                                        !Array.isArray(data.questions)
+                                    ) {
+                                        throw new Error('Invalid game structure');
+                                    }
+                                    setUploadedGame(data);
+                                    setGameName(data.gameName);
+                                } catch (err) {
+                                    alert('Failed to parse game JSON: ' + err.message);
+                                    setUploadedGame(null);
+                                }
+                                };
+                                reader.readAsText(file);
+                            }}
+                        />
+                    </div>
+                
+                    {/* Action buttons */}
+                    <div className="flex flex-col gap-2">
+                        <button
+                            className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
+                            onClick={handleCreateGame}
+                        >
+                            Create
+                        </button>
+                        <button
+                            className="w-full bg-gray-200 text-gray-800 rounded-md py-2 font-medium hover:bg-gray-300 transition"
+                            onClick={() => {
+                                setStep('confirm');
+                                setUploadedGame(null);
+                                setOpenAddGame(false);
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            ) : step === 'finishAddGame' ? (
+                <div className="text-center w-72 mx-auto p-4 bg-white rounded-lg shadow-md">
+                    <p className="font-semibold text-lg text-gray-800 mb-4">
+                        Game has been added!
+                    </p>
+                    <button
+                        className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
+                        onClick={() => {
+                            setStep('confirm');
+                            setUploadedGame(null);
+                            setOpenAddGame(false);
+                        }}
+                    >
+                        OK
+                    </button>
+                </div>
+            ) : null}
             </Modal>
 
-            {/* Modal for add game button*/}
+            {/* Modal for delete game button*/}
             <Modal open={openDeleteGame} onClose={() => {
                 setStep('confirm');
                 setSelectedGameId(null);
