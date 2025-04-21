@@ -4,7 +4,6 @@ import {
     BarChart, Bar,
     LineChart, Line,
     XAxis, YAxis,
-    CartesianGrid, Tooltip, Legend,
     ResponsiveContainer
 } from 'recharts';
 
@@ -92,7 +91,14 @@ function SessionResults({ sessionId }) {
 
 	// SHowing corresponding on status
 	if (loading) return <p>Loading session results...</p>;
-	if (error) return <p className="text-red-500">{error}</p>;
+
+	if (error) {
+		return (
+		  	<div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+				<span className="block sm:inline">{error}</span>
+		  	</div>
+		);
+	  }
 
 	return (
 	    <div className="p-6">
@@ -135,7 +141,7 @@ function SessionResults({ sessionId }) {
 	      	  	<LineChart data={questionStats}>
 	      	  	  	<XAxis dataKey="name" />
 	      	  	  	<YAxis unit="s" />
-	      	  	  	<Line type="monotone" dataKey="avgTime"  />
+	      	  	  	<Line type="monotone" dataKey="avgTime" />
 	      	  	</LineChart>
 	      	</ResponsiveContainer>
 	    </div>
