@@ -13,9 +13,12 @@ function Dashboard() {
     const navigate =  useNavigate();
     const { games, setGames, loading, fetchGames } = useGames();
 
+    // All the state for modals
     const [openAddGame, setOpenAddGame] = useState(false);
     const [openStartGame, setOpenStartGame] = useState(false);
     const [openStopGame, setOpenStopGame] = useState(false);
+    const [openDeleteGame, setOpenDeleteGame] = useState(false);
+
     const [step, setStep] = useState('confirm');
     const [gameName, setGameName] = useState('');
     const [selectedGameId, setSelectedGameId] = useState(null);
@@ -51,14 +54,29 @@ function Dashboard() {
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
 
-            alert("Game created successfully!");
-            setOpenAddGame(false);
+            setStep('finishAddGame')
             await fetchGames(); // refresh imediately
         } catch (err) {
             console.log(err);
             alert("Failed to create game.");
         }
     }
+
+    // Functio to handle delete game
+    const handleDeleteGame = async (gameId) => {
+        try {
+            const updatedGames = games.filter(game => game.gameId !== selectedGameId);
+
+            const res = await axios.put(`http://localhost:5005/admin/games`,
+                { games: updatedGames },
+                { headers: { 'Authorization': `Bearer ${token}` } }
+            );
+            setStep('finishDelete');
+            await fetchGames(); // refresh imediately
+        } catch (err) {
+            console.log(err);
+        }
+    };
 
     // Function to stop a game via API
     const handleStopGame = async () => {
@@ -133,26 +151,16 @@ function Dashboard() {
                 <div className='border-b'>
                     <div className="flex items-center justify-between mx-10 mt-10 pb-4">
                         <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
-                        <div className='flex gap-2'>
-                            <button
-                                className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
-                                onClick={() => {
-                                    setStep('confirm');
-                                    setOpenAddGame(true);
-                                }}
-                            >
-                                Add Game
-                            </button>
-                            <button
-                                className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
-                                onClick={() => {
-                                    setStep('confirm');
-                                    setOpenDeleteGame(true);
-                                }}
-                            >
-                                Delete Game
-                            </button>
-                        </div>
+                        <button
+                            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
+                            onClick={() => {
+                                setStep('confirm');
+                                setOpenAddGame(true);
+                            }}
+                        >
+                            Add Game
+                        </button>
+
                     </div>
 
                 </div>
@@ -164,21 +172,38 @@ function Dashboard() {
                             className="border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl bg-zinc-700 text-white"
                             onClick={() => navigate(`/game/${game.gameId}`)}
                         >
-                            {game.thumbnail && (
+                            {game.thumbnailUrl && (
                                 <img
-                                    src={game.thumbnail}
+                                    src={game.thumbnailUrl}
                                     alt="Thumbnail"
                                     className="w-full h-40 object-cover rounded mb-2"
                                 />
                             )}
-                            <h3 className="text-lg font-semibold">Game ID: {game.gameName}</h3>
+                            <div className='flex justify-between'> 
+                                <h2 className="text-lg font-semibold">
+                                    Game ID: {game.gameName}
+                                </h2>
+
+                                <button
+                                        className='btn border rounded-xl p-3 cursor-pointer hover:bg-red-400 hover:text-slate-900'
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedGameId(game.gameId);
+                                            setStep('confirm');
+                                            setOpenDeleteGame(true);
+                                        }}
+                                    >
+                                        Delete Game
+                                </button>
+                            </div>
+
                             <p>Questions: {game.questions.length}</p>
                             <p>Total Duration: {
                                 game.questions.reduce((sum, q) => sum + q.duration, 0)
                             } seconds</p>
                             <div className='flex gap-4 mt-3'>
                                 <button
-                                    className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                                    className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setSelectedGameId(game.gameId);
@@ -190,7 +215,7 @@ function Dashboard() {
                                 </button>
                                 {game.active && (
                                     <button
-                                        className='btn border rounded-xl p-5 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                                        className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             setSelectedGameId(game.gameId);
@@ -208,30 +233,100 @@ function Dashboard() {
 
             </div>
             {/* Modal for add game button*/}
-            <Modal open={openAddGame} onClose={() => setOpenAddGame(false)}>
-                <div className="text-center w-56">
+            <Modal open={openAddGame} onClose={() => {
+                setStep('confirm');
+                setOpenAddGame(false);
+            }}>
+                {step === 'confirm' ? (
                     <div className="text-center w-56">
-                        <h3 className="text-lg font-black text-gray-800">Create New Game</h3>
-                        <label htmlFor="gameName">Game Name</label>
-                        <input type="text" id="gameName" className='mb-2 border rounded-sm'
-                        onChange={(e) =>setGameName(e.target.value)} value={gameName}/>
-
-                    </div>
-                    <div>
-                        <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                        onClick={handleCreateGame}>
-                            Create</button>
-                        <button
-                            className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                            onClick={() => {setOpenAddGame(false)}}
+                        <div className="text-center w-56">
+                            <h3 className="text-lg font-black text-gray-800">Create New Game</h3>
+                            <label htmlFor="gameName">Game Name</label>
+                            <input type="text" id="gameName" className='mb-2 border rounded-sm'
+                                onChange={(e) =>setGameName(e.target.value)} value={gameName}/>
+                        </div>
+                        <div>
+                            <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
+                                onClick={handleCreateGame}>
+                                Create
+                            </button>
+                            <button
+                                className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
+                                onClick={() => {setOpenAddGame(false)}}
                             >
-                            Cancel
-                        </button>
+                                Cancel
+                            </button>
+                        </div>
                     </div>
-                </div>
+                ) : step === 'finishAddGame' ? (
+                    <>
+                        <div className='text-center'>
+                            <p className='font-semibold text-lg'> Game have been Added!</p>
+                            <button 
+                                className='btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'
+                                onClick={() => {
+                                    setStep('confirm');
+                                    setOpenAddGame(false);
+                                }}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </>
+                )
+                : null }
             </Modal>
+
+            {/* Modal for add game button*/}
+            <Modal open={openDeleteGame} onClose={() => {
+                setStep('confirm');
+                setSelectedGameId(null);
+                setOpenDeleteGame(false);}}>
+                {step === 'confirm' ? (
+                    <>
+                        <div className="text-center w-56">
+                            <h3 className="text-lg font-black text-gray-800">Delete a existing Game</h3>
+                        </div>
+
+                        <div className='flex justify-between gap-2'>
+                            <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
+                            onClick={handleDeleteGame}>
+                                Delete
+                            </button>
+                            <button
+                                className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
+                                onClick={() => {setOpenDeleteGame(false)}}
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </>
+                ) : step === 'finishDelete' ? (
+                    <>
+                        <div className='text-center'>
+                            <p className='font-semibold text-lg'> Game have been deleted!</p>
+                            <button 
+                                className='btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'
+                                onClick={() => {
+                                    setStep('confirm');
+                                    setSelectedGameId(null);
+                                    setOpenDeleteGame(false);
+                                }}
+                            >
+                                OK
+                            </button>
+                        </div>
+                    </>
+                ) : null }
+            </Modal>
+
             {/* Modal for start game button*/}
-            <Modal open={openStartGame} onClose={() => setOpenStartGame(false)}>
+            <Modal open={openStartGame} onClose={() => {
+                setOpenStartGame(false)
+                setSessionId(null);
+                setCopied(false);
+                setStep('confirm')
+            }}>
                 {step === 'confirm' ? (
                     <>
                         <p>Are you sure you want to start the game?</p>

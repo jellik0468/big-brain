@@ -10,6 +10,11 @@ function EditGame() {
 	const { games, setGames, fetchGames } = useGames();
   	const [game, setGame] = useState(null);
 
+	// meta fiels
+	const [gameName, setGameName] = useState("");
+	const [thumbnail, setThumbnail] = useState("");
+	const [thumbInputKey, setThumbInputKey] = useState(Date.now());
+
 	useEffect(() => {
 		fetchGames();
 	}, []);
@@ -21,10 +26,51 @@ function EditGame() {
 		);
 		if (matchedGame) {
 			setGame(matchedGame);
+			setGameName(matchedGame.gameName || "");
+			setThumbnail(matchedGame.thumbnailUrl || "");
 		}
 	}, [games, params.gameId]);
 
-	
+	// handle thumbnail upload
+	const handleThumbnailUpload = (e) => {
+	    const file = e.target.files[0];
+	    if (!file) return;
+	    const reader = new FileReader();
+	    reader.onloadend = () => setThumbnail(reader.result);
+	    reader.readAsDataURL(file);
+	};
+
+	const handleDeleteThumbnail = () => {
+	    setThumbnail("");
+	    setThumbInputKey(Date.now());
+	};
+
+	// save game meta (name + thumbnail)
+	const handleSaveMeta = async () => {
+	    try {
+	      	const updatedGame = {
+	        	...game,
+	        	gameName: gameName.trim(),
+	        	thumbnailUrl: thumbnail || null,
+	      	};
+	      	// update in global list
+	      	const updatedGames = Object.values(games).map((g) =>
+	      	  	String(g.gameId) === String(updatedGame.gameId) ? updatedGame : g
+	      	);
+
+	      	await axios.put(
+	      	  	"http://localhost:5005/admin/games",
+	      	  	{ games: updatedGames },
+	      	  	{ headers: { 'Authorization': `Bearer ${token}` } }
+	      	);
+
+	      	setGame(updatedGame);
+	      	setGames(updatedGames);
+	    } catch (err) {
+	    	console.log(err);
+	    }
+	};
+
 	// Handle delete question by updating game state
 	const handleDeleteQuestion = async (index) => {
 		const updatedQuestions = [...game.questions];
@@ -98,58 +144,9 @@ function EditGame() {
 	}
 
 	return (
-		<div className="p-6">
-			<h2 className="text-2xl font-bold mb-4">
-				Edit Game: {game ? game.gameName : "Loading..."}
-			</h2>
+		<div className="p-6 max-w-5xl mx-auto space-y-10" aria-label="Edit Game Page">
 
-			{game && (
-				<>
-					<div className="grid gap-4">
-						{game.questions.map((q, index) => (
-							<div
-								key={index}
-								className="border p-4 rounded shadow bg-white space-y-2"
-							>
-								<h3 className="font-bold text-lg">Question {index + 1}</h3>
-								<p>
-									<strong>Duration:</strong> {q.duration} seconds
-								</p>
-								<p>
-									<strong>Correct Answers:</strong>{" "}
-									{Array.isArray(q.correctAnswers)
-										? q.correctAnswers.join(", ")
-										: ""}
-								</p>
-
-								<div className="flex space-x-4">
-									<button
-										className="text-red-500 hover:underline"
-										onClick={() => handleDeleteQuestion(index)}
-									>
-										❌ Delete This Question
-									</button>
-
-									<button
-										className="text-blue-700 hover:underline"
-										onClick={() => handleEditQuestion(index)}
-									>
-										Edit Question
-									</button>
-								</div>
-							</div>
-						))}
-					</div>
-
-					<button
-						onClick={handleAddQuestion}
-						className="mt-6 bg-green-500 text-white px-4 py-2 rounded"
-					>
-						➕ Add New Question
-					</button>
-				</>
-			)}
-		</div>
+	  	</div>
 	);
 }
 
