@@ -7,11 +7,13 @@ import Modal from "./Modal";
 function EditGame() {
 	const navigate = useNavigate();
 	const params = useParams();
-    const token = localStorage.getItem("token");
 	const { games, setGames, fetchGames } = useGames();
+
+    const token = localStorage.getItem("token");
+
   	const [game, setGame] = useState(null);
 
-	// meta fiels
+	// meta fields
 	const [gameName, setGameName] = useState("");
 	const [thumbnail, setThumbnail] = useState("");
 	const [thumbInputKey, setThumbInputKey] = useState(Date.now());
@@ -30,6 +32,8 @@ function EditGame() {
 		const matchedGame = Object.values(games).find(
 			(g) => String(g.gameId) === String(params.gameId)
 		);
+		
+		// Setting the first load value to existing
 		if (matchedGame) {
 			setGame(matchedGame);
 			setGameName(matchedGame.gameName || "");
@@ -106,6 +110,7 @@ function EditGame() {
 		};
 	
 		try {
+			// Find the game object and put the new game with deleted question back
 			const updatedGames = Object.values(games).map((g) =>
 				String(g.gameId) === String(game.gameId) ? updatedGame : g
 			);

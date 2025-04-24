@@ -1,184 +1,180 @@
 import { useEffect, useState } from 'react';
 
 import {
-    BrowserRouter as Router,
-    useNavigate,
-    Link,
+  useNavigate,
+  Link,
 } from "react-router-dom"
 
 import axios from 'axios';
 
 function Register(props) {
-    const setToken = props.setToken;
+  const setToken = props.setToken;
+  const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate =  useNavigate();
 
-    const [email, setEmail] = useState('');
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [error, setError] = useState('');
-
-    const navigate =  useNavigate();
-
-    useEffect(() => {
-        if (password != confirmPassword) {
-            setError('Password does not match!')
-        } else {
-            setError('')
-        }
-    }, [password, confirmPassword])
-
-    const register = async () => {
-        if (password != confirmPassword) {
-            return;
-        }
-        
-        try {
-            const res = await axios.post('http://localhost:5005/admin/auth/register', {
-                email: email,
-                password: password,
-                name: name
-            });
-            const token = res.data.token;
-            localStorage.setItem('token', token);
-            setToken(token);
-            localStorage.setItem('owner', email);
-            navigate('/dashboard');
-        } catch (err) {
-            if (err.response.data.error === 'Email address already registered') {
-                setError('This Email address already registered, maybe try logging in');
-            } else {
-                setError('Failed to register');
-            }
-        }
+  useEffect(() => {
+    if (password != confirmPassword) {
+      setError('Password does not match!')
+    } else {
+      setError('')
     }
-
-    return (
-        <>
-            <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-
-                <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900"
-                    aria-label="Register heading"
-                >
-                    Register
-                </h2>
+  }, [password, confirmPassword])
+  
+  const register = async () => {
+    if (password != confirmPassword) {
+      return;
+    }
     
-                <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-                    <div>
-                        <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                            Email address
-                        </label>
-                        <div className="mt-2">
-                            <input
-                            value={email}
-                            aria-label="Email address"
-                            onKeyDown={e => {if (e.key === 'Enter') {
-                                register();
-                            }}}
-                            onChange={e => setEmail(e.target.value)}
-                            type="text"
-                            aria-required="true"
-                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                            -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            />
-                        </div>
-                    </div>
+    try {
+      const res = await axios.post('http://localhost:5005/admin/auth/register', {
+        email: email,
+        password: password,
+        name: name
+      });
+      const token = res.data.token;
+      localStorage.setItem('token', token);
+      setToken(token);
+      localStorage.setItem('owner', email);
+      navigate('/dashboard');
 
-                    <div>
-                        <label htmlFor="userName" className="block text-sm/6 font-medium text-gray-900">
-                            User Name
-                        </label>
-                        <div className="mt-2">
-                            <input
-                            value={name}
-                            aria-label="User Name"
-                            aria-required="true"
-                            onKeyDown={e => {if (e.key === 'Enter') {
-                                register();
-                            }}}
-                            onChange={e => setName(e.target.value)}
-                            type="text"
-                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                            -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            />
-                        </div>
-                    </div>
+    } catch (err) {
+      if (err.response.data.error === 'Email address already registered') {
+        setError('This Email address already registered, maybe try logging in');
+      } else {
+        setError('Failed to register');
+      }
+    }
+  }
 
-    
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-                            Password
-                            </label>
+  return (
+    <>
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <h2 className="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900"
+          aria-label="Register heading"
+        >
+          Register
+        </h2>
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <div>
+            <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
+                Email address
+            </label>
 
-                        </div>
-                        <div className="mt-2">
-                            <input
-                            value={password}
-                            aria-label="Password"
-                            aria-required="true"
-                            onKeyDown={e => {if (e.key === 'Enter') {
-                                register();
-                            }}}
-                            onChange={e => setPassword(e.target.value)}
-                            type="password"
-                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                            -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="flex items-center justify-between">
-                            <label htmlFor="confirmPassword" className="block text-sm/6 font-medium text-gray-900">
-                            Confirm Password
-                            </label>
-
-                        </div>
-                        <div className="mt-2">
-                            <input
-                            value={confirmPassword}
-                            onKeyDown={e => {if (e.key === 'Enter') {
-                                register();
-                            }}}
-                            aria-label="Confirm Password"
-                            aria-required="true"
-                            onChange={e => setConfirmPassword(e.target.value)}
-                            type="password"
-                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                            -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-                            />
-                        </div>
-                    </div>
-    
-                    <div>
-                        {error && (
-                        <div className='text-red-600 font-medium'>
-                            {error}
-                        </div>)}
-
-                        <button
-                            aria-label="Submit registration form"
-                            onClick={register}
-                            className="mt-5 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6
-                            font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 
-                            focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                        >
-                            Register
-                        </button>
-                    </div>
-    
-                    <p className="mt-10 text-center text-sm/6 text-gray-500">
-                        Already a member?{' '}
-                    <Link to="/Login" className="font-semibold text-indigo-600 hover:text-indigo-500"
-                        aria-label="Navigate to login page"
-                    >
-                        Login Now!
-                    </Link>
-                    </p>
-                </div>
+            <div className="mt-2">
+              <input
+                value={email}
+                aria-label="Email address"
+                onKeyDown={e => {if (e.key === 'Enter') {
+                  register();
+                }}}
+                onChange={e => setEmail(e.target.value)}
+                type="text"
+                aria-required="true"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
+                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
             </div>
-        </>
-      )
+          </div>
+          <div>
+            <label htmlFor="userName" className="block text-sm/6 font-medium text-gray-900">
+              User Name
+            </label>
+
+            <div className="mt-2">
+              <input
+                value={name}
+                aria-label="User Name"
+                aria-required="true"
+                onKeyDown={e => {if (e.key === 'Enter') {
+                  register();
+                }}}
+                onChange={e => setName(e.target.value)}
+                type="text"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
+                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
+              Password
+              </label>
+            </div>
+
+            <div className="mt-2">
+              <input
+                value={password}
+                aria-label="Password"
+                aria-required="true"
+                onKeyDown={e => {if (e.key === 'Enter') {
+                  register();
+                }}}
+                onChange={e => setPassword(e.target.value)}
+                type="password"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
+                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between">
+              <label htmlFor="confirmPassword" className="block text-sm/6 font-medium text-gray-900">
+                Confirm Password
+              </label>
+            </div>
+
+            <div className="mt-2">
+              <input
+                value={confirmPassword}
+                onKeyDown={e => {if (e.key === 'Enter') {
+                  register();
+                }}}
+                aria-label="Confirm Password"
+                aria-required="true"
+                onChange={e => setConfirmPassword(e.target.value)}
+                type="password"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
+                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <div>
+            {error && (
+              <div className='text-red-600 font-medium'>
+                {error}
+              </div>)}
+
+            <button
+              aria-label="Submit registration form"
+              onClick={register}
+              className="mt-5 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6
+              font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 
+              focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Register
+            </button>
+          </div>
+
+          <p className="mt-10 text-center text-sm/6 text-gray-500">
+            Already a member?{' '}
+            <Link to="/Login" className="font-semibold text-indigo-600 hover:text-indigo-500"
+              aria-label="Navigate to login page"
+            >
+              Login Now!
+            </Link>
+          </p>
+        </div>
+      </div>
+    </>
+  )
 }
 
 export default Register

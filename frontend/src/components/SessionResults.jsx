@@ -74,6 +74,7 @@ function SessionResults({ sessionId }) {
 	        const avgTime = times.length
 	          ? times.reduce((sum, t) => sum + t, 0) / times.length
 	          : 0;
+
 	        return {
 	        	name: `Question ${idx + 1}`,
 	        	percentage: totalCount ? (correctCount / totalCount) * 100 : 0,
@@ -81,9 +82,11 @@ function SessionResults({ sessionId }) {
 	        };
 	      });
 	      	setQuestionStats(stats);
+
 	    	} catch (err) {
 	      	console.log(err);
 	      	setError('Failed to load session results'); // Visual error prompt
+
 	    	} finally {
 			  // Stop loading state
 	      	setLoading(false);
