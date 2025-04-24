@@ -28,6 +28,10 @@ function Register(props) {
     }, [password, confirmPassword])
 
     const register = async () => {
+        if (password != confirmPassword) {
+            return;
+        }
+        
         try {
             const res = await axios.post('http://localhost:5005/admin/auth/register', {
                 email: email,

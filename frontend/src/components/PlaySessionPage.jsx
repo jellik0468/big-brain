@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import videoBg from '../assets/videoBg.mp4'
+import { useGames } from './context/GameContext';
 
 // Helper function to get youtube link and play with iframe
 function YouTubeEmbed({ url }) {
@@ -82,6 +83,10 @@ function PlaySessionPage() {
     const [results, setResults] = useState(null);
     const [loadingResults, setLoadingResults] = useState(false);
 
+    // fetch current game to get if advance scoring system is on for current game
+    const game = Object.values(games).find(g => String(g.prevSessionId) === sessionId);
+    const useAdvancedScoring = !!game.useAdvancedScoring;
+
     // Poll /status
     useEffect(() => {
         // Don’t poll status once session has ended
@@ -131,7 +136,14 @@ function PlaySessionPage() {
                 if (!cancelled) {
                     setQuestion(prev => {
                         if (!prev || prev.isoTimeLastQuestionStarted !== q.isoTimeLastQuestionStarted) {
-                            setAskedQuestions(prevList => [...prevList, q]); // add to pass list
+                            setAskedQuestions(prevList => {
+                                // Check if it's already in the list
+                                const exists = prevList.some(
+                                    existing => existing.isoTimeLastQuestionStarted === 
+                                    q.isoTimeLastQuestionStarted
+                                );
+                                return exists ? prevList : [...prevList, q];
+                            }); // add to pass list
                             return q; // update the current question
                         }
                         return prev; // no change
@@ -274,7 +286,7 @@ function PlaySessionPage() {
             answers: answersPayload
         })
     };
-
+    
     // Render logic
     if (sessionEnded && !question) {
         return (
@@ -329,6 +341,11 @@ function PlaySessionPage() {
                 <div className="max-w-5xl w-full bg-gray-800 text-white rounded-lg shadow-lg p-6 overflow-auto">
                     <h2 className="text-3xl font-bold mb-6 border-b border-gray-700 pb-2">Your Results</h2>
                         <div className="overflow-x-auto">
+                            <p className='text-center pb-4'>
+                                🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
+                                If correct, your points are calculated as:<br />
+                                Points = (1 - TimeTaken ÷ Duration) * Question Points
+                            </p>
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="bg-gray-700 text-sm uppercase tracking-wider">
@@ -341,20 +358,23 @@ function PlaySessionPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {results.map((r, i) => {
-                                        const q = askedQuestions.find(
-                                            q => q.isoTimeLastQuestionStarted === r.questionStartedAt
-                                        ) || {};
-                                    
-                                        const timeTaken = r.answeredAt
-                                            ? Math.ceil(
-                                                (new Date(r.answeredAt).getTime() -
-                                                new Date(r.questionStartedAt).getTime()) / 1000
-                                            )
+                                    {askedQuestions.map((q, i) => {
+                                        const r = results.find(r => r.questionStartedAt === q.isoTimeLastQuestionStarted);
+
+                                        const timeTaken = r?.answeredAt
+                                            ? Math.ceil((new Date(r.answeredAt).getTime() - new Date(r.questionStartedAt).getTime()) / 1000)
                                             : 0;
-                                          
-                                        const pts = r.correct ? (q.points || 0) : 0;
-                                          
+
+                                        let pts = 0;
+                                        if (r?.correct) {
+                                            if (useAdvancedScoring) {
+                                                const speedFactor = Math.max(0, (q.duration - timeTaken) / q.duration);
+                                                pts = Math.round(q.points * speedFactor);
+                                            } else {
+                                                pts = q.points;
+                                            }
+                                        }
+                                    
                                         return (
                                             <tr
                                                 key={i}
@@ -364,10 +384,10 @@ function PlaySessionPage() {
                                             >
                                                 <td className="py-3 px-4">{i + 1}</td>
                                                 <td className="py-3 px-4 break-words">{q.text}</td>
-                                                <td className="py-3 px-4 break-words">{r.answers.join(', ')}</td>
-                                                <td className="py-3 px-4">{r.correct ? '✔️' : '❌'}</td>
+                                                <td className="py-3 px-4 break-words">{r ? r.answers.join(', ') : '—'}</td>
+                                                <td className="py-3 px-4">{r ? (r.correct ? '✔️' : '❌') : '❌'}</td>
                                                 <td className="py-3 px-4">{pts}</td>
-                                                <td className="py-3 px-4">{timeTaken}</td>
+                                                <td className="py-3 px-4">{r ? timeTaken : '—'}</td>
                                             </tr>
                                         );
                                     })}
@@ -378,6 +398,7 @@ function PlaySessionPage() {
             </div>
         );
     }
+
     // Question UI
     return (
         <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center px-4">

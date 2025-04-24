@@ -4,15 +4,20 @@ import { useGames } from './context/GameContext';
 import { useSession } from './context/SessionContext';
 import SessionResults from "./SessionResults";
 import axios from 'axios';
+import Modal from "./Modal";
 
 function AdminSessionPage() {
     const { sessionData, fetchSession, loadingSession } = useSession();
     const { games, fetchGames } = useGames();
     const params = useParams();
-    console.log(sessionData)
+
     const token = localStorage.getItem('token');
+
     // countdown timer state
     const [remainingTime, setRemainingTime] = useState(0);
+    
+    // modal
+    const [openStopAlert, setOpenStopAlert] = useState(false);
 
     // Finds the game ID associated with the given session ID
     const findGameIdBySession = (sessionId) => {
@@ -108,7 +113,8 @@ function AdminSessionPage() {
                 { mutationType: 'END' },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
-            alert("Game session stopped.");
+            
+            setOpenStopAlert(true);
             
             console.log(sessionData);
             // Refreseh games so dashboard or context stays updated globally
@@ -158,6 +164,19 @@ function AdminSessionPage() {
             ) : (
                 <p>Loading session results...</p>
             )}
+
+            {/* Modal for successfully close game alert*/}
+            <Modal open={openStopAlert} onClose={() => setOpenStopAlert(false)}>
+                <p>Successfully closed the game session!</p>
+                <div className="flex justify-center mt-3">
+                    <button
+                        onClick={() => setOpenStopAlert(false)}
+                        className="btn p-2 px-5 py-2 mt-3 border rounded-md cursor-pointer hover:bg-zinc-400"
+                    >
+                        OK
+                    </button>
+                </div>
+            </Modal>
         </>
     );
 }

@@ -7,6 +7,7 @@
   "id": 87654321,
   "prevSessionId": null,
   "thumbnailUrl": null,
+  "useAdvancedScoring": false,
   "questions": [
     {
 			"questionId": 1,

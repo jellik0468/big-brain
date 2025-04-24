@@ -42,11 +42,22 @@ function Dashboard() {
     // Function to update game via PUT API
     const handleCreateGame = async () => {
         try {
-            const newGame = {
-                gameName: gameName,
-                gameId: Math.floor(Math.random() * 100000000),
-                owner: owner,
-                questions: [],
+            let newGame;
+
+            if (uploadedGame) {
+                newGame = {
+                    ...uploadedGame,
+                    useAdvancedScoring: uploadedGame.useAdvancedScoring?? false
+                }
+            } else {
+
+                newGame = {
+                    gameName: gameName,
+                    gameId: Math.floor(Math.random() * 100000000),
+                    owner: owner,
+                    questions: [],
+                    useAdvancedScoring: false, // default it to false
+                }
             }
 
             const updatedGames = [...Object.values(games), newGame];
@@ -174,7 +185,9 @@ function Dashboard() {
                         <div 
                             aria-label={`Open game ${game.gameName} edit page`}
                             key={game.gameId}
-                            className="border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl bg-zinc-700 text-white"
+                            className={`border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl
+                                text-white ${game.active ? "bg-orange-600 hover:bg-orange-700" 
+                                : "bg-sky-800 hover:bg-sky-900"}`}
                             onClick={() => navigate(`/game/${game.gameId}`)}
                         >
                             {game.thumbnailUrl && (
@@ -208,18 +221,22 @@ function Dashboard() {
                                 game.questions.reduce((sum, q) => sum + q.duration, 0)
                             } seconds</p>
                             <div className='flex gap-4 mt-3'>
-                                <button
-                                    className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        setSelectedGameId(game.gameId);
-                                        setStep('confirm');
-                                        setOpenStartGame(true);
-                                    }}
-                                    aria-label={`Start game ${game.gameName}`}
-                                >
-                                    Start Game
-                                </button>
+                                {!game.active && (
+                                    <button
+                                        className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setSelectedGameId(game.gameId);
+                                            setStep('confirm');
+                                            setOpenStartGame(true);
+                                        }}
+                                        aria-label={`Start game ${game.gameName}`}
+                                    >
+                                        Start Game
+                                    </button>
+
+                                )}
+
                                 {game.active && (
                                     <button
                                         className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
@@ -294,6 +311,7 @@ function Dashboard() {
                                     ) {
                                         throw new Error('Invalid game structure');
                                     }
+                                    console.log('e')
                                     setUploadedGame(data);
                                     setGameName(data.gameName);
                                 } catch (err) {
@@ -327,7 +345,7 @@ function Dashboard() {
                     </div>
                 </div>
             ) : step === 'finishAddGame' ? (
-                <div className="text-center w-72 mx-auto p-4 bg-white rounded-lg shadow-md">
+                <div className="text-center w-72 mx-auto p-4 bg-white rounded-lg">
                     <p className="font-semibold text-lg text-gray-800 mb-4">
                         Game has been added!
                     </p>
@@ -336,6 +354,7 @@ function Dashboard() {
                         onClick={() => {
                             setStep('confirm');
                             setUploadedGame(null);
+                            setGameName('');
                             setOpenAddGame(false);
                         }}
                     >

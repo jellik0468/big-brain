@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useGames } from './context/GameContext';
 import {
     BarChart, Bar,
     LineChart, Line,
@@ -8,6 +9,7 @@ import {
 } from 'recharts';
 
 function SessionResults({ sessionId }) {
+	const { games } = useGames();
 	const token = localStorage.getItem('token');
 
 	// State for tracking players, question stats, loading status, and errors
@@ -15,6 +17,10 @@ function SessionResults({ sessionId }) {
 	const [questionStats, setQuestionStats] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+
+	const game = Object.values(games).find(g => String(g.prevSessionId) === sessionId);
+    console.log(game)
+    const useAdvancedScoring = !!game.useAdvancedScoring;
 
 	useEffect(() => {
 		// Fetch session results from API
@@ -102,7 +108,16 @@ function SessionResults({ sessionId }) {
 
 	return (
 	    <div className="p-6">
-	      	<h2 className="text-2xl font-bold mb-4">Session Results</h2>
+			<div className='flex justify-between'>
+				<h2 className="text-2xl font-bold mb-4">Session Results</h2>
+				{useAdvancedScoring && <div>
+					<p className='text-center pb-4 border-l border-gray-300 pl-10'>
+            	        🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
+            	        If correct, your points are calculated as:<br />
+            	        Points = (1 - TimeTaken ÷ Duration) * Question Points
+            	    </p>
+				</div>}
+			</div>
 
 	      	{/* Top 5 Players */}
 	      	<h3 className="text-xl font-semibold mb-2">Top 5 Players</h3>

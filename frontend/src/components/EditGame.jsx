@@ -16,6 +16,9 @@ function EditGame() {
 	const [thumbnail, setThumbnail] = useState("");
 	const [thumbInputKey, setThumbInputKey] = useState(Date.now());
 
+	// keeping track of state of use advanced points system
+	const [useAdvancedScoring, setUseAdvancedScoring] = useState(false);
+
 	const [isModalOpen, setModalOpen] = useState(false);
 
 	useEffect(() => {
@@ -31,6 +34,7 @@ function EditGame() {
 			setGame(matchedGame);
 			setGameName(matchedGame.gameName || "");
 			setThumbnail(matchedGame.thumbnailUrl || "");
+			setUseAdvancedScoring(!!matchedGame.useAdvancedScoring);
 		}
 	}, [games, params.gameId]);
 
@@ -67,6 +71,7 @@ function EditGame() {
 	        	...game,
 	        	gameName: gameName.trim(),
 	        	thumbnailUrl: thumbnail || null,
+				useAdvancedScoring,
 	      	};
 	      	// update in global list
 	      	const updatedGames = Object.values(games).map((g) =>
@@ -220,6 +225,17 @@ function EditGame() {
 						</div>
 				  	)}
 			  	</div>
+				{/* Game-level Multiplier */}
+				<div className="col-span-full flex items-center space-x-4">
+          			<label className="flex items-center">
+            			<input
+            		  		type="checkbox"
+            		  		checked={useAdvancedScoring}
+            		  		onChange={() => setUseAdvancedScoring(prev => !prev)}
+            			/>
+            			<span className="ml-2">Enable advanced scoring</span>
+          			</label>
+        		</div>
 			  
 			  	<div className="col-span-full text-right">
 					  	<button
