@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { useSession } from './context/SessionContext';
-import { useGames } from './context/GameContext';
+import { useSession } from './context/useSession';
+import { useGames } from './context/useGames';
 
 function HistorySession() {
     const navigate = useNavigate();
@@ -28,7 +28,7 @@ function HistorySession() {
             ) : (
                 <>
                     {/* Active Sessions */}
-                    <section>
+                    <section aria-labelledby="active-heading">
                         <h2 className="text-xl font-semibold mb-4">🟢 Currently Active Sessions</h2>
                         {allSessions.activeList.length === 0 ? (
                             <p className="text-gray-500 italic">No active sessions running.</p>
@@ -51,7 +51,7 @@ function HistorySession() {
                     </section>
 
                     {/* Most Recent */}
-                    <section>
+                    <section aria-labelledby="recent-heading">
                         <h2 className="text-xl font-semibold mb-4">🕓 Most Recent Sessions</h2>
                         {allSessions.latestList.length === 0 ? (
                             <p className="text-gray-500 italic">No recent sessions found.</p>
@@ -73,7 +73,7 @@ function HistorySession() {
                     </section>
 
                     {/* Past Sessions */}
-                    <section>
+                    <section aria-labelledby="Archived-heading">
                         <h2 className="text-xl font-semibold mb-4">📚 Archived Sessions</h2>
                         {allSessions.pastList.length === 0 ? (
                             <p className="text-gray-500 italic">No past sessions found.</p>

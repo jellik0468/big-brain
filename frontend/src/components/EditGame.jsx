@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { useGames } from "./context/GameContext";
+import { useGames } from './context/useGames';
 import Modal from "./Modal";
 
 function EditGame() {

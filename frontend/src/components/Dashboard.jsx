@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useGames } from './context/GameContext';
+import { useGames } from './context/useGames';
 import axios from 'axios';
 import Modal from './Modal';
 
@@ -186,7 +186,7 @@ function Dashboard() {
                             aria-label={`Open game ${game.gameName} edit page`}
                             key={game.gameId}
                             className={`border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl
-                                text-white ${game.active ? "bg-orange-600 hover:bg-orange-700" 
+                                text-white ${game.active ? "bg-orange-700 hover:bg-orange-700" 
                                 : "bg-sky-800 hover:bg-sky-900"}`}
                             onClick={() => navigate(`/game/${game.gameId}`)}
                         >
@@ -262,7 +262,11 @@ function Dashboard() {
                 setStep('confirm');
                 setUploadedGame(null);
                 setOpenAddGame(false);
-            }}>
+            }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
 
             {step === 'confirm' ? (
                 <div className="text-center w-72 mx-auto p-4 rounded-lg">
@@ -366,9 +370,14 @@ function Dashboard() {
 
             {/* Modal for delete game button*/}
             <Modal open={openDeleteGame} onClose={() => {
-                setStep('confirm');
+            setStep('confirm');
                 setSelectedGameId(null);
-                setOpenDeleteGame(false);}}>
+                setOpenDeleteGame(false);
+            }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
                 {step === 'confirm' ? (
                     <>
                         <div className="text-center w-56">
@@ -413,7 +422,11 @@ function Dashboard() {
                 setSessionId(null);
                 setCopied(false);
                 setStep('confirm')
-            }}>
+            }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
                 {step === 'confirm' ? (
                     <>
                         <p>Are you sure you want to start the game?</p>
@@ -444,6 +457,7 @@ function Dashboard() {
                                         setCopied('true');
                                     }}
                                     aria-label="Copy join link to clipboard"
+                                    aria-live="assertive"
                                 >
                                     Copy Join Link
                                 </button>
@@ -501,7 +515,10 @@ function Dashboard() {
             </Modal>
 
             {/* Modal for stop game button*/}
-            <Modal open={openStopGame} onClose={() => setOpenStopGame(false)}>
+            <Modal open={openStopGame} onClose={() => setOpenStopGame(false)} 
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title">
                 {step === 'confirm' ? (
                     <>
                         <p>Are you sure you want to stop the game?</p>

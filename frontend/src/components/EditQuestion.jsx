@@ -188,7 +188,7 @@ function EditQuestion() {
         <div className="p-6 max-w-2xl mx-auto space-y-4">
             <h2 className="text-2xl font-bold">Edit Question {Number(params.questionId) + 1}</h2>
 
-            <label className="block">
+            <label htmlFor="questionType" className="block">
                 Question Type:
             <select value={questionType} onChange={(e) => setQuestionType(e.target.value)} className="w-full border p-1 rounded">
                 <option value="single">Single Choice</option>
@@ -197,23 +197,23 @@ function EditQuestion() {
             </select>
             </label>
 
-            <label className="block">
+            <label htmlFor="questionText" className="block">
                 Question:
                 <input value={questionText} onChange={(e) => setQuestionText(e.target.value)} className="w-full border p-1 rounded" />
             </label>
 
-            <label className="block">
+            <label htmlFor="duration" className="block">
                 Time Limit (seconds):
                 <input type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full border p-1 rounded" />
             </label>
 
-            <label className="block">
+            <label htmlFor="points" className="block">
                 Points:
                 <input type="number" value={points} onChange={(e) => setPoints(Number(e.target.value))} className="w-full border p-1 rounded" />
             </label>
 
             <div className="flex items-center gap-2">
-                <label className="flex items-center gap-2 w-full">
+                <label htmlFor="youtubeUrl" className="flex items-center gap-2 w-full">
                     YouTube URL (optional):
                     <input
                         value={youtubeUrl}
@@ -233,7 +233,7 @@ function EditQuestion() {
             </div>
 
             <div className="flex items-center gap-2">
-                <label className="block">
+                <label htmlFor="imageUpload" className="block">
                     Upload Image (optional):
                     <input type="file" accept="image/*" onChange={handleImageUpload}
                     key={imageInputKey}
@@ -278,6 +278,7 @@ function EditQuestion() {
 
                             /* Typing not allowed for Judgement question*/
                             disabled={questionType === "judgement"}
+                            aria-label={`Answer ${i + 1}`}
                         />
 
                         <label className="flex items-center gap-1">
@@ -360,7 +361,11 @@ function EditQuestion() {
             <Modal open={openSaveQuestionModal} onClose={() => {
                     setOpenSaveQuestionModal(false)
                     navigate(`/game/${params.gameId}`);
-                }}>
+                }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
                 <div className="text-center">
                     <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
                     <button
@@ -376,7 +381,11 @@ function EditQuestion() {
                 </div>
             </Modal>
 
-            <Modal open={openEmptyQuestionModal} onClose={() => setOpenEmptyQuestionModal(false)}>
+            <Modal open={openEmptyQuestionModal} onClose={() => setOpenEmptyQuestionModal(false)}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
                 <div className="text-center">
                     <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
                     <button
@@ -388,7 +397,11 @@ function EditQuestion() {
                 </div>
             </Modal>
 
-            <Modal open={openLessThanTwoAnswerModal} onClose={() => setOpenLessThanTwoAnswerModal(false)}>
+            <Modal open={openLessThanTwoAnswerModal} onClose={() => setOpenLessThanTwoAnswerModal(false)}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
                 <div className="text-center">
                     <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
                     <button
@@ -400,7 +413,11 @@ function EditQuestion() {
                 </div>
             </Modal>
 
-            <Modal open={openNoCorrectAnswerModal} onClose={() => setOpenNoCorrectAnswerModal(false)}>
+            <Modal open={openNoCorrectAnswerModal} onClose={() => setOpenNoCorrectAnswerModal(false)}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-title"
+            >
                 <div className="text-center">
                     <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
                     <button

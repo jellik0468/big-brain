@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useGames } from './context/GameContext';
-import { useSession } from './context/SessionContext';
+import { useGames } from './context/useGames';
+import { useSession } from './context/useSession';
 import SessionResults from "./SessionResults";
 import axios from 'axios';
 import Modal from "./Modal";

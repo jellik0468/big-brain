@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useGames } from './context/GameContext';
+import { useGames } from './context/useGames';
 import {
     BarChart, Bar,
     LineChart, Line,

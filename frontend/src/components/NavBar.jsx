@@ -28,14 +28,14 @@ function NavBar(props) {
     }
 
     return  (
-    <div>
+    <nav aria-label="Main navigation">
         <div className='p-3 flex flex-row flex-nowrap justify-start gap-5 bg-gray-900 border-b rounded-b-lg'>
             <button onClick={toDashboard} className='px-4 py-2 mr-2 text-white rounded hover:bg-gray-700 border'>Dashboard</button>
             <button onClick={logout} className='px-4 py-2 text-white rounded hover:bg-gray-700 border'>Log Out</button>
             <button onClick={toHistorySessions} className='px-4 py-2 text-white rounded hover:bg-gray-700 border'>History Sessions</button>
         </div>
         <Outlet />
-    </div>
+    </nav>
     )
 }
 

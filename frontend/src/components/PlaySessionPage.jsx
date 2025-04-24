@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import videoBg from '../assets/videoBg.mp4'
-import { useGames } from './context/GameContext';
+import { useGames } from './context/useGames';
 
 // Helper function to get youtube link and play with iframe
 function YouTubeEmbed({ url }) {
@@ -346,7 +346,7 @@ function PlaySessionPage() {
                                 If correct, your points are calculated as:<br />
                                 Points = (1 - TimeTaken ÷ Duration) * Question Points
                             </p>
-                            <table className="w-full text-left border-collapse">
+                            <table className="w-full text-left border-collapse" aria-labelledby="results-heading">
                                 <thead>
                                     <tr className="bg-gray-700 text-sm uppercase tracking-wider">
                                         <th className="py-3 px-4 rounded-tl-lg">#</th>
@@ -415,7 +415,7 @@ function PlaySessionPage() {
                 </p>
     
                 {/* Answer options */}
-                <form className="space-y-3">
+                <form className="space-y-3" aria-labelledby="question-label">
                     {question?.answers?.map((ans, index) => {
                         const id = `opt-${index}`;
                         const isChecked = question.type === 'multiple'
