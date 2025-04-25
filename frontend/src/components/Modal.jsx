@@ -1,4 +1,6 @@
 function Modal({ open, onClose, children }) {
+  if (!open) return null;
+
   return (
     <div onClick={onClose} className={`
       fixed inset-0 flex justify-center items-center transition-colors backdrop-blur-sm overflow-y-auto

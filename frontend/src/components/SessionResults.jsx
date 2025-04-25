@@ -108,7 +108,8 @@ function SessionResults({ sessionId }) {
     <div className="p-6">
   		<div className='flex justify-between'>
   			<h2 className="text-2xl font-bold mb-4">Session Results</h2>
-  			{useAdvancedScoring && <div>
+  			{useAdvancedScoring && 
+			<div>
   				<p className='text-center pb-4 border-l border-gray-300 pl-10'>
             	        🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
             	        If correct, your points are calculated as:<br />

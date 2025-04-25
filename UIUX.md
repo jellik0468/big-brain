@@ -40,6 +40,8 @@ Session control page / Admin result page
 If a session is active, the sesion control screen is displayed, where admin can see the sessionId, current question number, and time remaining for that specific question. Also button to advance question and stop session.
 When user click stop session either in this session control page, or dashboard page. In other words, a session is inactive, the session control page will become admin result page, if no player have ever joined, error msg will shown as there is no point showing, else admin will be able to see the session results.
 
+If a game has useAdvancedScoring on admin will see a description of how it is calculated on the result page.
+
 Join / Play page
 The join and play page is made dark blue to feel a bit arcade.
 
@@ -50,3 +52,5 @@ A stardew valley mp4 will be played after player has entered their name, but the
 Once they are in the gaming phrase, they can see the time remaining, and the answer they have selected.
 
 Once the game finished, they will see their answers to correspondsing questions.
+
+If a game has useAdvancedScoring on they will see a description of how it is calculated on the result page.

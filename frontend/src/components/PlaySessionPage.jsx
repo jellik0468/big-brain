@@ -351,11 +351,13 @@ function PlaySessionPage() {
         <div className="max-w-5xl w-full bg-gray-800 text-white rounded-lg shadow-lg p-6 overflow-auto">
           <h2 className="text-3xl font-bold mb-6 border-b border-gray-700 pb-2">Your Results</h2>
           <div className="overflow-x-auto">
-            <p className='text-center pb-4'>
-              🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
-              If correct, your points are calculated as:<br />
-              Points = (1 - TimeTaken ÷ Duration) * Question Points
-            </p>
+            {useAdvancedScoring && 
+              <p className='text-center pb-4'>
+                🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
+                If correct, your points are calculated as:<br />
+                Points = (1 - TimeTaken ÷ Duration) * Question Points
+              </p>
+            }
             <table className="w-full text-left border-collapse" aria-labelledby="results-heading">
               <thead>
                 <tr className="bg-gray-700 text-sm uppercase tracking-wider">
