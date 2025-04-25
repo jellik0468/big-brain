@@ -5,171 +5,172 @@ import { useGames } from './context/useGames';
 import Modal from "./Modal";
 
 function EditGame() {
-	const navigate = useNavigate();
-	const params = useParams();
-	const { games, setGames, fetchGames } = useGames();
+  const navigate = useNavigate();
+  const params = useParams();
+  const { games, setGames, fetchGames } = useGames();
 
-    const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
 
-  	const [game, setGame] = useState(null);
+  const [game, setGame] = useState(null);
 
-	// meta fields
-	const [gameName, setGameName] = useState("");
-	const [thumbnail, setThumbnail] = useState("");
-	const [thumbInputKey, setThumbInputKey] = useState(Date.now());
+  // meta fields
+  const [gameName, setGameName] = useState("");
+  const [thumbnail, setThumbnail] = useState("");
+  const [thumbInputKey, setThumbInputKey] = useState(Date.now());
 
-	// keeping track of state of use advanced points system
-	const [useAdvancedScoring, setUseAdvancedScoring] = useState(false);
+  // keeping track of state of use advanced points system
+  const [useAdvancedScoring, setUseAdvancedScoring] = useState(false);
 
-	const [isModalOpen, setModalOpen] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
 
-	useEffect(() => {
-		fetchGames();
-	}, []);
+  useEffect(() => {
+  	fetchGames();
+  }, []);
 
-	useEffect(() => {
-		// Load from context
-		const matchedGame = Object.values(games).find(
-			(g) => String(g.gameId) === String(params.gameId)
-		);
+  useEffect(() => {
+  	// Load from context
+  	const matchedGame = Object.values(games).find(
+  		(g) => String(g.gameId) === String(params.gameId)
+  	);
+  
+  	// Setting the first load value to existing
+  	if (matchedGame) {
+  		setGame(matchedGame);
+  		setGameName(matchedGame.gameName || "");
+  		setThumbnail(matchedGame.thumbnailUrl || "");
+  		setUseAdvancedScoring(!!matchedGame.useAdvancedScoring);
+  	}
+  }, [games, params.gameId]);
+
+  // handle thumbnail upload
+  const handleThumbnailUpload = (e) => {
+	  const file = e.target.files[0];
+	  if (!file) return;
+	  const reader = new FileReader();
+	  reader.onloadend = () => setThumbnail(reader.result);
+	  reader.readAsDataURL(file);
+  };
+
+  const handleDeleteThumbnail = async () => {
+	  setThumbnail("");
+	  setThumbInputKey(Date.now());
+  };
+
+  //make form onSubmit async
+  const handleSubmit = async (e) => {
+  	e.preventDefault();
+  	const success = await handleSaveMeta();
+
+  	if (success) {
+  	  setModalOpen(true);
+  	} else {
+  	  alert("Save failed—please try again.");
+  	}
+  };
+
+  // save game meta (name + thumbnail)
+  const handleSaveMeta = async () => {
+	  try {
+	    const updatedGame = {
+	    	...game,
+	    	gameName: gameName.trim(),
+	    	thumbnailUrl: thumbnail || null,
+			  useAdvancedScoring,
+	    };
+
+	    // update in global list
+	    const updatedGames = Object.values(games).map((g) =>
+	    	String(g.gameId) === String(updatedGame.gameId) ? updatedGame : g
+	    );
+
+	    await axios.put(
+	      "http://localhost:5005/admin/games",
+	      { games: updatedGames },
+	      { headers: { 'Authorization': `Bearer ${token}` } }
+	    );
+
+	    setGame(updatedGame);
+	    setGames(updatedGames);
+
+		  // returen true to open modal
+		  return true;
+	  } catch (err) {
+	  	console.log(err);
+	  }
+  };
+
+  // Handle delete question by updating game state
+  const handleDeleteQuestion = async (index) => {
+  	const updatedQuestions = [...game.questions];
+  	updatedQuestions.splice(index, 1); // Remove the selected question
 		
-		// Setting the first load value to existing
-		if (matchedGame) {
-			setGame(matchedGame);
-			setGameName(matchedGame.gameName || "");
-			setThumbnail(matchedGame.thumbnailUrl || "");
-			setUseAdvancedScoring(!!matchedGame.useAdvancedScoring);
-		}
-	}, [games, params.gameId]);
-
-	// handle thumbnail upload
-	const handleThumbnailUpload = (e) => {
-	    const file = e.target.files[0];
-	    if (!file) return;
-	    const reader = new FileReader();
-	    reader.onloadend = () => setThumbnail(reader.result);
-	    reader.readAsDataURL(file);
-	};
-
-	const handleDeleteThumbnail = async () => {
-	    setThumbnail("");
-	    setThumbInputKey(Date.now());
-	};
-
-	//make form onSubmit async
-	const handleSubmit = async (e) => {
-		e.preventDefault();
-		const success = await handleSaveMeta();
-
-		if (success) {
-		  	setModalOpen(true);
-		} else {
-		  	alert("Save failed—please try again.");
-		}
-	};
-
-	// save game meta (name + thumbnail)
-	const handleSaveMeta = async () => {
-	    try {
-	      	const updatedGame = {
-	        	...game,
-	        	gameName: gameName.trim(),
-	        	thumbnailUrl: thumbnail || null,
-				useAdvancedScoring,
-	      	};
-	      	// update in global list
-	      	const updatedGames = Object.values(games).map((g) =>
-	      	  	String(g.gameId) === String(updatedGame.gameId) ? updatedGame : g
-	      	);
-
-	      	await axios.put(
-	      	  	"http://localhost:5005/admin/games",
-	      	  	{ games: updatedGames },
-	      	  	{ headers: { 'Authorization': `Bearer ${token}` } }
-	      	);
-
-	      	setGame(updatedGame);
-	      	setGames(updatedGames);
-
-			// returen true to open modal
-			return true;
-	    } catch (err) {
-	    	console.log(err);
-	    }
-	};
-
-	// Handle delete question by updating game state
-	const handleDeleteQuestion = async (index) => {
-		const updatedQuestions = [...game.questions];
-		updatedQuestions.splice(index, 1); // Remove the selected question
-		
-		// paste back
-		const updatedGame = {
-			...game,
-			questions: updatedQuestions,
-		};
+  	// paste back
+  	const updatedGame = {
+  		...game,
+  		questions: updatedQuestions,
+  	};
 	
-		try {
-			// Find the game object and put the new game with deleted question back
-			const updatedGames = Object.values(games).map((g) =>
-				String(g.gameId) === String(game.gameId) ? updatedGame : g
-			);
-	
-			await axios.put("http://localhost:5005/admin/games", {
-				games: updatedGames,
-			}, {
-				headers: {
-					'Authorization': `Bearer ${token}`,
-				},
-			});
-	
-			setGame(updatedGame); // local game target
-			setGames(updatedGames); // setting for global context
-		} catch (err) {
-			console.log(err);
-			alert("Failed to delete question.");
-		}
-	};
+  	try {
+  		// Find the game object and put the new game with deleted question back
+  		const updatedGames = Object.values(games).map((g) =>
+  			String(g.gameId) === String(game.gameId) ? updatedGame : g
+  		);
 
-	// Handle add question by updating game state
-	const handleAddQuestion = async () => {
-		const newQuestion = {
-			duration: 0,
-			correctAnswers: [],
-			Answers: [],
-		};
-		// Copying current game for later update
-		const updatedGame = {
-			...game,
-			questions: [...game.questions, newQuestion],
-		};
-	
-		try {
-			const updatedGames = Object.values(games).map((g) =>
-				String(g.gameId) === String(game.gameId) ? updatedGame : g
-			);
-	
-			await axios.put("http://localhost:5005/admin/games", {
-				games: updatedGames,
-			}, {
-				headers: {
-					'Authorization': `Bearer ${token}`,
-				},
-			});
-	
-			setGame(updatedGame); // local state
-			setGames(updatedGames); // setting global context
-		} catch (err) {
-			console.log(err);
-			alert("Failed to add and save question.");
-		}
-	};
+  		await axios.put("http://localhost:5005/admin/games", {
+  			games: updatedGames,
+  		}, {
+  			headers: {
+  				'Authorization': `Bearer ${token}`,
+  			},
+  		});
+
+  		setGame(updatedGame); // local game target
+  		setGames(updatedGames); // setting for global context
+  	} catch (err) {
+  		console.log(err);
+  		alert("Failed to delete question.");
+  	}
+  };
+
+  // Handle add question by updating game state
+  const handleAddQuestion = async () => {
+  	const newQuestion = {
+  		duration: 0,
+  		correctAnswers: [],
+  		Answers: [],
+  	};
+  	// Copying current game for later update
+  	const updatedGame = {
+  		...game,
+  		questions: [...game.questions, newQuestion],
+  	};
+
+  	try {
+  		const updatedGames = Object.values(games).map((g) =>
+  			String(g.gameId) === String(game.gameId) ? updatedGame : g
+  		);
+
+  		await axios.put("http://localhost:5005/admin/games", {
+  			games: updatedGames,
+  		}, {
+  			headers: {
+  				'Authorization': `Bearer ${token}`,
+  			},
+  		});
+
+  		setGame(updatedGame); // local state
+  		setGames(updatedGames); // setting global context
+  	} catch (err) {
+  		console.log(err);
+  		alert("Failed to add and save question.");
+  	}
+  };
 	
 
-	// Handle redirecting when edit question button is clicked.
-	const handleEditQuestion = (index) => {
-		navigate(`/game/${params.gameId}/question/${index}`);
-	}
+  // Handle redirecting when edit question button is clicked.
+  const handleEditQuestion = (index) => {
+  	navigate(`/game/${params.gameId}/question/${index}`);
+  }
 
 	return (
 		<div className="p-6 max-w-5xl mx-auto space-y-10" aria-label="Edit Game Page">
