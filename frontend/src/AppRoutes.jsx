@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useNavigate, Outlet} from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
@@ -11,35 +11,34 @@ import JoinSession from './components/JoinSession';
 import PlaySessionPage from './components/PlaySessionPage';
 
 function AppRoutes({ token, setToken }) {
-
-    return (
-        <>
-            <Routes>
-                <Route path="/join/:sessionId" element={<JoinSession />} />
-                <Route path="/join" element={<JoinSession />} />
-                <Route path="/play/:sessionId" element={<PlaySessionPage />} />
-                <Route
-                    path="/" 
-                    element={token ? <Navigate replace to="/dashboard" /> : <Login setToken={setToken} />} 
-                />
-                <Route 
-                    path="/login" 
-                    element={token ? <Navigate replace to="/dashboard" /> : <Login setToken={setToken} />} 
-                />
-                <Route 
-                    path="/register" 
-                    element={token ? <Navigate replace to="/dashboard" /> : <Register setToken={setToken} />} 
-                />
-                <Route path="/" element={<NavBar setToken={setToken}/>}>
-                    <Route path="dashboard" element={<Dashboard />} />
-                    <Route path="/game/:gameId" element={<EditGame />} />
-                    <Route path="/game/:gameId/question/:questionId" element={<EditQuestion/>} />
-                    <Route path="/session/:sessionId" element={<AdminSessionPage/>} />
-                    <Route path="/historySession" element={<HistorySession/>} />
-                </Route>
-            </Routes>
-        </>
-    );
+  return (
+    <>
+      <Routes>
+        <Route path="/join/:sessionId" element={<JoinSession />} />
+        <Route path="/join" element={<JoinSession />} />
+        <Route path="/play/:sessionId" element={<PlaySessionPage />} />
+        <Route
+          path="/" 
+          element={token ? <Navigate replace to="/dashboard" /> : <Login setToken={setToken} />} 
+        />
+        <Route 
+          path="/login" 
+          element={token ? <Navigate replace to="/dashboard" /> : <Login setToken={setToken} />} 
+        />
+        <Route 
+          path="/register" 
+          element={token ? <Navigate replace to="/dashboard" /> : <Register setToken={setToken} />} 
+        />
+        <Route path="/" element={<NavBar setToken={setToken}/>}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="/game/:gameId" element={<EditGame />} />
+          <Route path="/game/:gameId/question/:questionId" element={<EditQuestion/>} />
+          <Route path="/session/:sessionId" element={<AdminSessionPage/>} />
+          <Route path="/historySession" element={<HistorySession/>} />
+        </Route>
+      </Routes>
+    </>
+  );
 }
 
 export default AppRoutes;
