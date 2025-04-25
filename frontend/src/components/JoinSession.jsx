@@ -12,7 +12,46 @@ function JoinSession() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
+    // Adding xml prompting
+  	if (!sessionId) {
+    	setError('You must enter a session ID.');
+      return;
+  	}
+
+	  // Adding xml prompting
+  	if (!name.trim()) {
+    		setError('Please enter your name.');
+    		return;
+  	}
+
+  	setLoading(true);
+  	try {
+  	  const res = await axios.post(
+  	  	`http://localhost:5005/play/join/${sessionId}`,
+  	  	{ name: name.trim() }
+  	  );
+  	  const { playerId } = res.data;
+  	  // save playerId for this session
+  	  localStorage.setItem(`player_${sessionId}`, playerId);
+  	  // Navigate to the play screen
+  	  navigate(`/play/${sessionId}`);
+  	} catch (err) {
+
+		  if (err.response.data.error === "Session has already begun") {
+			  setError("You can't join the session after it has begun");
+		  } else {
+			  console.log(err);
+			  setError('Failed to join session');
+		  }
+
+  	} finally {
+  	  setLoading(false);
+  	}
+  };
 
   return (
 	  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br 
