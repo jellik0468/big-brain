@@ -336,169 +336,168 @@ function PlaySessionPage() {
     );
   }
 
-    if (!question && !sessionEnded) {
-        return <p className="text-center mt-10">Loading question…</p>;
+  if (!question && !sessionEnded) {
+    return <p className="text-center mt-10">Loading question…</p>;
+  }
+
+  // Final performance screen
+
+  if (sessionEnded) {
+    if (loadingResults || !results) {
+      return <p className="text-center mt-10">Loading final results…</p>;
     }
-
-    // Final performance screen
-
-    if (sessionEnded) {
-        if (loadingResults || !results) {
-            return <p className="text-center mt-10">Loading final results…</p>;
-        }
-        return (
-            <div className="min-h-screen w-full bg-gray-900 text-white flex items-center justify-center px-4">
-                <div className="max-w-5xl w-full bg-gray-800 text-white rounded-lg shadow-lg p-6 overflow-auto">
-                    <h2 className="text-3xl font-bold mb-6 border-b border-gray-700 pb-2">Your Results</h2>
-                        <div className="overflow-x-auto">
-                            <p className='text-center pb-4'>
-                                🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
-                                If correct, your points are calculated as:<br />
-                                Points = (1 - TimeTaken ÷ Duration) * Question Points
-                            </p>
-                            <table className="w-full text-left border-collapse" aria-labelledby="results-heading">
-                                <thead>
-                                    <tr className="bg-gray-700 text-sm uppercase tracking-wider">
-                                        <th className="py-3 px-4 rounded-tl-lg">#</th>
-                                        <th className="py-3 px-4">Question</th>
-                                        <th className="py-3 px-4">Your Answer</th>
-                                        <th className="py-3 px-4">Correct</th>
-                                        <th className="py-3 px-4">Points</th>
-                                        <th className="py-3 px-4 rounded-tr-lg">Time (s)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {askedQuestions.map((q, i) => {
-                                        const r = results.find(r => r.questionStartedAt === q.isoTimeLastQuestionStarted);
-
-                                        const timeTaken = r?.answeredAt
-                                            ? Math.ceil((new Date(r.answeredAt).getTime() - new Date(r.questionStartedAt).getTime()) / 1000)
-                                            : 0;
-
-                                        let pts = 0;
-                                        if (r?.correct) {
-                                            if (useAdvancedScoring) {
-                                                const speedFactor = Math.max(0, (q.duration - timeTaken) / q.duration);
-                                                pts = Math.round(q.points * speedFactor);
-                                            } else {
-                                                pts = q.points;
-                                            }
-                                        }
-                                    
-                                        return (
-                                            <tr
-                                                key={i}
-                                                className={`border-t border-gray-700 ${
-                                                    i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-850'
-                                                } hover:bg-gray-700 transition duration-200`}
-                                            >
-                                                <td className="py-3 px-4">{i + 1}</td>
-                                                <td className="py-3 px-4 break-words">{q.text}</td>
-                                                <td className="py-3 px-4 break-words">{r ? r.answers.join(', ') : '—'}</td>
-                                                <td className="py-3 px-4">{r ? (r.correct ? '✔️' : '❌') : '❌'}</td>
-                                                <td className="py-3 px-4">{pts}</td>
-                                                <td className="py-3 px-4">{r ? timeTaken : '—'}</td>
-                                            </tr>
-                                        );
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-                </div>
-            </div>
-        );
-    }
-
-    // Question UI
     return (
-        <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center px-4">
-            <div className="max-w-xl w-full p-6 mt-10 bg-gray-800 rounded-lg shadow-lg text-white">
-                {/* Inserting media */}
-                <QuestionMedia media={question.media} />
+      <div className="min-h-screen w-full bg-gray-900 text-white flex items-center justify-center px-4">
+        <div className="max-w-5xl w-full bg-gray-800 text-white rounded-lg shadow-lg p-6 overflow-auto">
+          <h2 className="text-3xl font-bold mb-6 border-b border-gray-700 pb-2">Your Results</h2>
+          <div className="overflow-x-auto">
+            <p className='text-center pb-4'>
+              🧮 <b>Advanced Scoring is applied:</b> Your score is based on how quickly you answer.<br />
+              If correct, your points are calculated as:<br />
+              Points = (1 - TimeTaken ÷ Duration) * Question Points
+            </p>
+            <table className="w-full text-left border-collapse" aria-labelledby="results-heading">
+              <thead>
+                <tr className="bg-gray-700 text-sm uppercase tracking-wider">
+                  <th className="py-3 px-4 rounded-tl-lg">#</th>
+                  <th className="py-3 px-4">Question</th>
+                  <th className="py-3 px-4">Your Answer</th>
+                  <th className="py-3 px-4">Correct</th>
+                  <th className="py-3 px-4">Points</th>
+                  <th className="py-3 px-4 rounded-tr-lg">Time (s)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {askedQuestions.map((q, i) => {
+                  const r = results.find(r => r.questionStartedAt === q.isoTimeLastQuestionStarted);
 
-                {/* Question text */}
-                <h2 className="text-2xl font-bold mb-3">{question.text}</h2>
-    
-                {/* Timer */}
-                <p className="mb-4 font-mono text-blue-400 text-sm">
-                    Time Remaining: <span className="font-semibold">{remainingTime}s</span>
-                </p>
-    
-                {/* Answer options */}
-                <form className="space-y-3" aria-labelledby="question-label">
-                    {question?.answers?.map((ans, index) => {
-                        const id = `opt-${index}`;
-                        const isChecked = question.type === 'multiple'
-                            ? Array.isArray(selected) && selected.includes(index)
-                            : selected === index;
-    
-                        return (
-                            <div
-                                key={id}
-                                className={`flex items-start gap-3 p-3 rounded border 
-                                ${
-                                    isChecked
-                                        ? 'bg-gray-700 border-green-500'
-                                        : 'bg-gray-700 border-gray-600'
-                                }
-                                hover:border-blue-400 transition`}
-                            >
-                                <input
-                                    id={id}
-                                    type={question.type === 'multiple' ? 'checkbox' : 'radio'}
-                                    name="answer"
-                                    checked={isChecked}
-                                    onChange={() => handleSelect(index)}
-                                    disabled={remainingTime <= 0 || correctAnswersArr !== null}
-                                    className='mt-1'
-                                />
-                                <label htmlFor={id} className="cursor-pointer">
-                                    {ans}
-                                </label>
-                            </div>
-                        );
-                    })}
-                </form>
-    
-                {/* Selected */}
-                <p className="mt-5 text-sm text-gray-300 italic">
-                    <strong>Selected:</strong>{' '}
-                    {question.type === 'multiple'
-                        // construct a literal string to match database
-                        ? (Array.isArray(selected) ? selected : [])
-                            .map(i => `"${question.answers[i]}"`)
-                            .join(', ')
-                        : selected !== null
-                        ? `"${question.answers[selected]}"`
-                        : 'none'}
-                </p>
-    
-                {/* Result/ Feedback */}
-                {correctAnswersArr && (
-                    <div className="mt-6 p-5 bg-gray-700 rounded-lg border border-gray-600">
-                        <p className="font-semibold mb-2">Correct Answer(s):</p>
-                        <ul className="list-disc list-inside mb-4">
-                            {correctAnswersArr.map((corAns, i) => (
-                                <li key={i}>{corAns}</li>
-                            ))}
-                        </ul>
-    
-                        {isCorrect !== null && (
-                            <p
-                                className={`font-bold text-lg ${
-                                    isCorrect ? 'text-green-400' : 'text-red-400'
-                                }`}
-                            >
-                                {isCorrect
-                                    ? `🎉 You got it! +${earnedPoints} points`
-                                    : 'Oopsss—that wasn’t quite right. +0 points'}
-                            </p>
-                        )}
-                    </div>
-                )}
-            </div>
+                  const timeTaken = r?.answeredAt
+                    ? Math.ceil((new Date(r.answeredAt).getTime() - new Date(r.questionStartedAt).getTime()) / 1000)
+                    : 0;
+
+                  let pts = 0;
+                  if (r?.correct) {
+                    if (useAdvancedScoring) {
+                      const speedFactor = Math.max(0, (q.duration - timeTaken) / q.duration);
+                      pts = Math.round(q.points * speedFactor);
+                    } else {
+                      pts = q.points;
+                    }
+                  }
+                                  
+                  return (
+                    <tr
+                      key={i}
+                      className={`border-t border-gray-700 ${
+                        i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-850'
+                      } hover:bg-gray-700 transition duration-200`}
+                    >
+                      <td className="py-3 px-4">{i + 1}</td>
+                      <td className="py-3 px-4 break-words">{q.text}</td>
+                      <td className="py-3 px-4 break-words">{r ? r.answers.join(', ') : '—'}</td>
+                      <td className="py-3 px-4">{r ? (r.correct ? '✔️' : '❌') : '❌'}</td>
+                      <td className="py-3 px-4">{pts}</td>
+                      <td className="py-3 px-4">{r ? timeTaken : '—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     );
+  }
+
+  // Question UI
+  return (
+    <div className="min-h-screen w-full bg-gray-900 flex items-center justify-center px-4">
+      <div className="max-w-xl w-full p-6 mt-10 bg-gray-800 rounded-lg shadow-lg text-white">
+        {/* Inserting media */}
+        <QuestionMedia media={question.media} />
+
+        {/* Question text */}
+        <h2 className="text-2xl font-bold mb-3">{question.text}</h2>
+  
+        {/* Timer */}
+        <p className="mb-4 font-mono text-blue-400 text-sm">
+          Time Remaining: <span className="font-semibold">{remainingTime}s</span>
+        </p>
+    
+        {/* Answer options */}
+        <form className="space-y-3" aria-labelledby="question-label">
+          {question?.answers?.map((ans, index) => {
+            const id = `opt-${index}`;
+            const isChecked = question.type === 'multiple'
+              ? Array.isArray(selected) && selected.includes(index)
+              : selected === index;
+    
+            return (
+              <div
+                key={id}
+                className={`flex items-start gap-3 p-3 rounded border 
+                ${ isChecked
+                ? 'bg-gray-700 border-green-500'
+                : 'bg-gray-700 border-gray-600'
+              }
+                hover:border-blue-400 transition`}
+              >
+                <input
+                  id={id}
+                  type={question.type === 'multiple' ? 'checkbox' : 'radio'}
+                  name="answer"
+                  checked={isChecked}
+                  onChange={() => handleSelect(index)}
+                  disabled={remainingTime <= 0 || correctAnswersArr !== null}
+                  className='mt-1'
+                />
+                <label htmlFor={id} className="cursor-pointer">
+                  {ans}
+                </label>
+              </div>
+            );
+          })}
+        </form>
+    
+        {/* Selected */}
+        <p className="mt-5 text-sm text-gray-300 italic">
+          <strong>Selected:</strong>{' '}
+          {question.type === 'multiple'
+            // construct a literal string to match database
+            ? (Array.isArray(selected) ? selected : [])
+              .map(i => `"${question.answers[i]}"`)
+              .join(', ')
+            : selected !== null
+              ? `"${question.answers[selected]}"`
+              : 'none'}
+        </p>
+    
+        {/* Result/ Feedback */}
+        {correctAnswersArr && (
+          <div className="mt-6 p-5 bg-gray-700 rounded-lg border border-gray-600">
+            <p className="font-semibold mb-2">Correct Answer(s):</p>
+            <ul className="list-disc list-inside mb-4">
+              {correctAnswersArr.map((corAns, i) => (
+                <li key={i}>{corAns}</li>
+              ))}
+            </ul>
+    
+            {isCorrect !== null && (
+              <p
+                className={`font-bold text-lg ${
+                  isCorrect ? 'text-green-400' : 'text-red-400'
+                }`}
+              >
+                {isCorrect
+                  ? `🎉 You got it! +${earnedPoints} points`
+                  : 'Oopsss—that wasn’t quite right. +0 points'}
+              </p>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default PlaySessionPage;
