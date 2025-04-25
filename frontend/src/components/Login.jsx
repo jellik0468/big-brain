@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-
+import EnterInput from './EnterInput';
 import {
   useNavigate,
   Link,
@@ -59,7 +59,7 @@ function Login(props) {
           onChange={(e) => setEmail(e.target.value)}
           onEnter={login}
           aria-label="Email address"
-          placeholder="you@example.com"
+          placeholder="zId@ad.unsw.edu.com"
         />
 
         <EnterInput
@@ -70,7 +70,7 @@ function Login(props) {
           onChange={(e) => setPassword(e.target.value)}
           onEnter={login}
           aria-label="Password"
-          placeholder="••••••••"
+          placeholder="Enter Your password"
         />
 
         {error && <div className="text-red-600 font-medium">{error}</div>}

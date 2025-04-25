@@ -38,7 +38,7 @@ describe('Modal component', () => {
     );
 
     // Get the backdrop by going up from the content
-    const backdrop = screen.getByText(modalText).parentElement?.parentElement!;
+    const backdrop = screen.getByText(modalText).parentElement?.parentElement;
     fireEvent.click(backdrop);
     expect(onClose).toHaveBeenCalledTimes(1);
   });

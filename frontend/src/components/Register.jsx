@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-
+import EnterInput from './EnterInput';
 import {
   useNavigate,
   Link,
@@ -59,109 +59,60 @@ function Register(props) {
           Register
         </h2>
         <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <div>
-            <label htmlFor="email" className="block text-sm/6 font-medium text-gray-900">
-                Email address
-            </label>
 
-            <div className="mt-2">
-              <input
-                value={email}
-                aria-label="Email address"
-                onKeyDown={e => {if (e.key === 'Enter') {
-                  register();
-                }}}
-                onChange={e => setEmail(e.target.value)}
-                type="text"
-                aria-required="true"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
-          <div>
-            <label htmlFor="userName" className="block text-sm/6 font-medium text-gray-900">
-              User Name
-            </label>
+          <EnterInput
+            id="email"
+            type="email"
+            label="Email address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onEnter={register}
+            placeholder="zId@ad.unsw.edu.com"
+            aria-label="Email address"
+          />
 
-            <div className="mt-2">
-              <input
-                value={name}
-                aria-label="User Name"
-                aria-required="true"
-                onKeyDown={e => {if (e.key === 'Enter') {
-                  register();
-                }}}
-                onChange={e => setName(e.target.value)}
-                type="text"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
+          <EnterInput
+            id="name"
+            type="text"
+            label="User Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onEnter={register}
+            placeholder="Your Name"
+            aria-label="User Name"
+          />
 
-          <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="password" className="block text-sm/6 font-medium text-gray-900">
-              Password
-              </label>
-            </div>
+          <EnterInput
+            id="password"
+            type="password"
+            label="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onEnter={register}
+            placeholder="Enter Your Password"
+            aria-label="Password"
+          />
 
-            <div className="mt-2">
-              <input
-                value={password}
-                aria-label="Password"
-                aria-required="true"
-                onKeyDown={e => {if (e.key === 'Enter') {
-                  register();
-                }}}
-                onChange={e => setPassword(e.target.value)}
-                type="password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
+          <EnterInput
+            id="confirmPassword"
+            type="password"
+            label="Confirm Password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            onEnter={register}
+            placeholder="Confirm Your password"
+            aria-label="Confirm Password"
+          />
 
-          <div>
-            <div className="flex items-center justify-between">
-              <label htmlFor="confirmPassword" className="block text-sm/6 font-medium text-gray-900">
-                Confirm Password
-              </label>
-            </div>
+          {error && <div className="text-red-600 font-medium">{error}</div>}
 
-            <div className="mt-2">
-              <input
-                value={confirmPassword}
-                onKeyDown={e => {if (e.key === 'Enter') {
-                  register();
-                }}}
-                aria-label="Confirm Password"
-                aria-required="true"
-                onChange={e => setConfirmPassword(e.target.value)}
-                type="password"
-                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1
-                -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              />
-            </div>
-          </div>
-
-          <div>
-            {error && (
-              <div className='text-red-600 font-medium'>
-                {error}
-              </div>)}
-
-            <button
-              aria-label="Submit registration form"
-              onClick={register}
-              className="mt-5 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6
-              font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 
-              focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            >
-              Register
-            </button>
-          </div>
+          <button
+            onClick={register}
+            className="mt-5 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            aria-label="Submit registration form"
+          >
+            Register
+          </button>
 
           <p className="mt-10 text-center text-sm/6 text-gray-500">
             Already a member?{' '}
