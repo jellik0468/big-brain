@@ -165,197 +165,198 @@ function Dashboard() {
               Add Game
             </button>
 
+          </div>
+
         </div>
 
-                </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-3">
+          {Object.values(games).map(game => (
+            <div 
+              aria-label={`Open game ${game.gameName} edit page`}
+              key={game.gameId}
+              className={`border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl
+              text-white ${game.active ? "bg-orange-700 hover:bg-orange-700" 
+              : "bg-sky-800 hover:bg-sky-900"}`}
+              onClick={() => navigate(`/game/${game.gameId}`)}
+            >
+              {game.thumbnailUrl && (
+                <img
+                  src={game.thumbnailUrl}
+                  alt="Thumbnail"
+                  className="w-full h-40 object-cover rounded mb-2"
+                />
+              )}
+              <div className='flex justify-between'> 
+                <h2 className="text-lg font-semibold">
+                  Game ID: {game.gameName}
+                </h2>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 m-3">
-                    {Object.values(games).map(game => (
-                        <div 
-                            aria-label={`Open game ${game.gameName} edit page`}
-                            key={game.gameId}
-                            className={`border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl
-                                text-white ${game.active ? "bg-orange-700 hover:bg-orange-700" 
-                                : "bg-sky-800 hover:bg-sky-900"}`}
-                            onClick={() => navigate(`/game/${game.gameId}`)}
-                        >
-                            {game.thumbnailUrl && (
-                                <img
-                                    src={game.thumbnailUrl}
-                                    alt="Thumbnail"
-                                    className="w-full h-40 object-cover rounded mb-2"
-                                />
-                            )}
-                            <div className='flex justify-between'> 
-                                <h2 className="text-lg font-semibold">
-                                    Game ID: {game.gameName}
-                                </h2>
+                <button
+                  className='btn border rounded-xl p-3 cursor-pointer hover:bg-red-400 hover:text-slate-900'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedGameId(game.gameId);
+                    setStep('confirm');
+                    setOpenDeleteGame(true);
+                  }}
+                  aria-label={`Delete game ${game.gameName}`}
+                >
+                  Delete Game
+                </button>
+              </div>
 
-                                <button
-                                        className='btn border rounded-xl p-3 cursor-pointer hover:bg-red-400 hover:text-slate-900'
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedGameId(game.gameId);
-                                            setStep('confirm');
-                                            setOpenDeleteGame(true);
-                                        }}
-                                        aria-label={`Delete game ${game.gameName}`}
-                                    >
-                                        Delete Game
-                                </button>
-                            </div>
+              <p>Questions: {game.questions.length}</p>
+              <p>Total Duration: {
+                game.questions.reduce((sum, q) => sum + q.duration, 0)
+              } seconds</p>
 
-                            <p>Questions: {game.questions.length}</p>
-                            <p>Total Duration: {
-                                game.questions.reduce((sum, q) => sum + q.duration, 0)
-                            } seconds</p>
-                            <div className='flex gap-4 mt-3'>
-                                {!game.active && (
-                                    <button
-                                        className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedGameId(game.gameId);
-                                            setStep('confirm');
-                                            setOpenStartGame(true);
-                                        }}
-                                        aria-label={`Start game ${game.gameName}`}
-                                    >
-                                        Start Game
-                                    </button>
+              <div className='flex gap-4 mt-3'>
+                {!game.active && (
+                  <button
+                    className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedGameId(game.gameId);
+                      setStep('confirm');
+                      setOpenStartGame(true);
+                    }}
+                    aria-label={`Start game ${game.gameName}`}
+                  >
+                    Start Game
+                  </button>
 
-                                )}
+                )}
 
-                                {game.active && (
-                                    <button
-                                        className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedGameId(game.gameId);
-                                            setStep('confirm');
-                                            setOpenStopGame(true);
-                                        }}
-                                        aria-label={`Stop game ${game.gameName}`}
-                                    >
-                                        Stop Game
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
+                {game.active && (
+                  <button
+                    className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedGameId(game.gameId);
+                      setStep('confirm');
+                      setOpenStopGame(true);
+                    }}
+                    aria-label={`Stop game ${game.gameName}`}
+                  >
+                    Stop Game
+                  </button>
+                )}
+              </div>
             </div>
-            {/* Modal for add game button*/}
-            <Modal open={openAddGame} onClose={() => {
+          ))}
+        </div>
+      </div>
+
+      {/* Modal for add game button*/}
+      <Modal open={openAddGame} onClose={() => {
+        setStep('confirm');
+        setUploadedGame(null);
+        setOpenAddGame(false);
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      >
+
+        {step === 'confirm' ? (
+          <div className="text-center w-72 mx-auto p-4 rounded-lg">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Create New Game
+            </h3>
+    
+            {/* Game Name input (disabled if JSON uploaded) */}
+            <div className="text-left mb-3">
+              <label htmlFor="gameName" className="block text-sm font-medium text-gray-700 mb-1">
+                Game Name
+              </label>
+              <input
+                type="text"
+                id="gameName"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none 
+                focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
+                onChange={e => setGameName(e.target.value)}
+                value={gameName}
+                disabled={!!uploadedGame}
+              />
+            </div>
+            
+            {/* JSON upload input */}
+            <div className="text-left mb-4">
+              <label htmlFor="uploadJson" className="block text-sm font-medium text-gray-700 mb-1">
+                Or upload full game JSON:
+              </label>
+              <input
+                type="file"
+                accept=".json"
+                id="uploadJson"
+                className="w-full text-sm text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded-md 
+                file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-100 hover:file:bg-gray-200"
+                onChange={e => {
+                  const file = e.target.files[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    try {
+                      const data = JSON.parse(reader.result);
+                      if (
+                        typeof data.gameName !== 'string' ||
+                        !data.gameId ||
+                        !Array.isArray(data.questions)
+                      ) {
+                        throw new Error('Invalid game structure');
+                      }
+                      console.log('e')
+                      setUploadedGame(data);
+                      setGameName(data.gameName);
+                    } catch (err) {
+                      alert('Failed to parse game JSON: ' + err.message);
+                      setUploadedGame(null);
+                    }
+                  };
+                  reader.readAsText(file);
+                }}
+              />
+            </div>
+                
+            {/* Action buttons */}
+            <div className="flex flex-col gap-2">
+              <button
+                className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
+                onClick={handleCreateGame}
+              >
+                Create
+              </button>
+              <button
+                className="w-full bg-gray-200 text-gray-800 rounded-md py-2 font-medium hover:bg-gray-300 transition"
+                onClick={() => {
+                  setStep('confirm');
+                  setUploadedGame(null);
+                  setOpenAddGame(false);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ) : step === 'finishAddGame' ? (
+          <div className="text-center w-72 mx-auto p-4 bg-white rounded-lg">
+            <p className="font-semibold text-lg text-gray-800 mb-4">
+              Game has been added!
+            </p>
+            <button
+              className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
+              onClick={() => {
                 setStep('confirm');
                 setUploadedGame(null);
+                setGameName('');
                 setOpenAddGame(false);
-            }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
+              }}
             >
-
-            {step === 'confirm' ? (
-                <div className="text-center w-72 mx-auto p-4 rounded-lg">
-                    <h3 className="text-xl font-bold text-gray-800 mb-4">
-                        Create New Game
-                    </h3>
-            
-                    {/* Game Name input (disabled if JSON uploaded) */}
-                    <div className="text-left mb-3">
-                        <label htmlFor="gameName" className="block text-sm font-medium text-gray-700 mb-1">
-                            Game Name
-                        </label>
-                        <input
-                            type="text"
-                            id="gameName"
-                            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none 
-                            focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
-                            onChange={e => setGameName(e.target.value)}
-                            value={gameName}
-                            disabled={!!uploadedGame}
-                        />
-                    </div>
-            
-                    {/* JSON upload input */}
-                    <div className="text-left mb-4">
-                        <label htmlFor="uploadJson" className="block text-sm font-medium text-gray-700 mb-1">
-                            Or upload full game JSON:
-                        </label>
-                        <input
-                            type="file"
-                            accept=".json"
-                            id="uploadJson"
-                            className="w-full text-sm text-gray-600 file:mr-4 file:py-1 file:px-3 file:rounded-md 
-                            file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-100 hover:file:bg-gray-200"
-                            onChange={e => {
-                                const file = e.target.files[0];
-                                if (!file) return;
-                                const reader = new FileReader();
-                                reader.onload = () => {
-                                try {
-                                    const data = JSON.parse(reader.result);
-                                    if (
-                                        typeof data.gameName !== 'string' ||
-                                        !data.gameId ||
-                                        !Array.isArray(data.questions)
-                                    ) {
-                                        throw new Error('Invalid game structure');
-                                    }
-                                    console.log('e')
-                                    setUploadedGame(data);
-                                    setGameName(data.gameName);
-                                } catch (err) {
-                                    alert('Failed to parse game JSON: ' + err.message);
-                                    setUploadedGame(null);
-                                }
-                                };
-                                reader.readAsText(file);
-                            }}
-                        />
-                    </div>
-                
-                    {/* Action buttons */}
-                    <div className="flex flex-col gap-2">
-                        <button
-                            className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
-                            onClick={handleCreateGame}
-                        >
-                            Create
-                        </button>
-                        <button
-                            className="w-full bg-gray-200 text-gray-800 rounded-md py-2 font-medium hover:bg-gray-300 transition"
-                            onClick={() => {
-                                setStep('confirm');
-                                setUploadedGame(null);
-                                setOpenAddGame(false);
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            ) : step === 'finishAddGame' ? (
-                <div className="text-center w-72 mx-auto p-4 bg-white rounded-lg">
-                    <p className="font-semibold text-lg text-gray-800 mb-4">
-                        Game has been added!
-                    </p>
-                    <button
-                        className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
-                        onClick={() => {
-                            setStep('confirm');
-                            setUploadedGame(null);
-                            setGameName('');
-                            setOpenAddGame(false);
-                        }}
-                    >
-                        OK
-                    </button>
-                </div>
-            ) : null}
-            </Modal>
+              OK
+            </button>
+          </div>
+        ) : null}
+      </Modal>
 
             {/* Modal for delete game button*/}
             <Modal open={openDeleteGame} onClose={() => {
