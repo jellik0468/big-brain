@@ -260,175 +260,175 @@ function EditQuestion() {
         )}
       </div>
             
-            {/* Answers field */}
-            <div>
-                <h3 className="font-semibold mb-2">Answer(s)</h3>
-                {answers.map((a, i) => (
-                    <div key={i} className="flex gap-2 items-center mb-2">
-                        <input
-                            type="text"
-                            value={a}
-                            onChange={(e) => {
-                                const newAnswers = [...answers];
-                                newAnswers[i] = e.target.value;
-                                setAnswers(newAnswers);
-                            }}
-                            className="flex-1 border p-1 rounded"
+      {/* Answers field */}
+      <div>
+        <h3 className="font-semibold mb-2">Answer(s)</h3>
+        {answers.map((a, i) => (
+          <div key={i} className="flex gap-2 items-center mb-2">
+            <input
+              type="text"
+              value={a}
+              onChange={(e) => {
+                const newAnswers = [...answers];
+                newAnswers[i] = e.target.value;
+                setAnswers(newAnswers);
+              }}
+              className="flex-1 border p-1 rounded"
 
-                            /* Typing not allowed for Judgement question*/
-                            disabled={questionType === "judgement"}
-                            aria-label={`Answer ${i + 1}`}
-                        />
+              /* Typing not allowed for Judgement question*/
+              disabled={questionType === "judgement"}
+              aria-label={`Answer ${i + 1}`}
+            />
 
-                        <label className="flex items-center gap-1">
-                            <input
-                                type="checkbox"
-                                checked={correctAnswers.includes(i)}
-                                onChange={(e) => {
-                                    const isChecked = e.target.checked;
-                                    let newCorrectAnswers;
-                                
-                                    if (questionType === "single" || questionType === "judgement") {
-                                        // Allow only one correct answer
-                                        newCorrectAnswers = isChecked ? [i] : [];
-                                    } else {
-                                        // Allow multiple selections
-                                        newCorrectAnswers = isChecked
-                                        ? [...correctAnswers, i]
-                                        : correctAnswers.filter(index => index !== i);
-                                    }
-                                
-                                    setCorrectAnswers(newCorrectAnswers);
-                                }}
-                            />
-                            Correct
-                        </label>
-
-                        {questionType !== "judgement" && (
-                        <button
-                            onClick={() => {
-                                const newAnswers = answers.filter((_, index) => index !== i);
-
-                                const newCorrectAnswers = correctAnswers
-                                .filter(index => index !== i)
-                                .map(index => (index > i ? index - 1 : index));
-
-                                setAnswers(newAnswers);
-                                setCorrectAnswers(newCorrectAnswers);
-                            }}
-
-                            className={`text-red-500 border border-red-300 px-2 py-1 rounded hover:bg-red-200 ${
-                            // Disable delete when it is <= 2 to enforce two questions at least
-                            answers.length <= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
-                            disabled={answers.length <= 2}
-                        >
-                            Delete
-                        </button>
-                        )}
-                    </div>
-                ))}
-                {/* Enforcing 6 question most */}
-                {answers.length < 6 && questionType !== "judgement" && (
-                    <button
-                        onClick={() => setAnswers([...answers, ""])}
-                        className="mt-2 px-3 py-1 border rounded hover:bg-gray-200"
-                    >
-                        Add Answer
-                    </button>
-                )}
-            </div>
-            
-            {/* Save button */}
-            <div className="flex gap-4">
-                <button
-                    onClick={handleSaveQuestion}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Save Question
-                </button>
-
-                {/* Go back button */}
-                <button
-                    onClick={handleGoBack}
-                    className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                    Go back
-                </button>
-
-            </div>
-
-            <Modal open={openSaveQuestionModal} onClose={() => {
-                    setOpenSaveQuestionModal(false)
-                    navigate(`/game/${params.gameId}`);
+            <label className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={correctAnswers.includes(i)}
+                onChange={(e) => {
+                  const isChecked = e.target.checked;
+                  let newCorrectAnswers;
+                
+                  if (questionType === "single" || questionType === "judgement") {
+                    // Allow only one correct answer
+                    newCorrectAnswers = isChecked ? [i] : [];
+                  } else {
+                    // Allow multiple selections
+                    newCorrectAnswers = isChecked
+                      ? [...correctAnswers, i]
+                      : correctAnswers.filter(index => index !== i);
+                  }
+                
+                  setCorrectAnswers(newCorrectAnswers);
                 }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-            >
-                <div className="text-center">
-                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
-                    <button
-                        onClick={() => {
-                            setOpenSaveQuestionModal(false)
-                            navigate(`/game/${params.gameId}`);
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"    
-                    >
-                        Ok
-                    </button>
+              />
+              Correct
+            </label>
 
-                </div>
-            </Modal>
+            {questionType !== "judgement" && (
+              <button
+                onClick={() => {
+                  const newAnswers = answers.filter((_, index) => index !== i);
 
-            <Modal open={openEmptyQuestionModal} onClose={() => setOpenEmptyQuestionModal(false)}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-            >
-                <div className="text-center">
-                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
-                    <button
-                        onClick={() => setOpenEmptyQuestionModal(false)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                    >
-                        OK
-                    </button>
-                </div>
-            </Modal>
+                  const newCorrectAnswers = correctAnswers
+                    .filter(index => index !== i)
+                    .map(index => (index > i ? index - 1 : index));
 
-            <Modal open={openLessThanTwoAnswerModal} onClose={() => setOpenLessThanTwoAnswerModal(false)}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-            >
-                <div className="text-center">
-                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
-                    <button
-                        onClick={() => setOpenLessThanTwoAnswerModal(false)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                    >
-                        OK
-                    </button>
-                </div>
-            </Modal>
+                  setAnswers(newAnswers);
+                  setCorrectAnswers(newCorrectAnswers);
+                }}
 
-            <Modal open={openNoCorrectAnswerModal} onClose={() => setOpenNoCorrectAnswerModal(false)}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-            >
-                <div className="text-center">
-                    <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
-                    <button
-                        onClick={() => setOpenNoCorrectAnswerModal(false)}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
-                    >
-                        OK
-                    </button>
-                </div>
-            </Modal>
+                className={`text-red-500 border border-red-300 px-2 py-1 rounded hover:bg-red-200 ${
+                  // Disable delete when it is <= 2 to enforce two questions at least
+                  answers.length <= 2 ? "opacity-50 cursor-not-allowed" : ""}`}
+                disabled={answers.length <= 2}
+              >
+                Delete
+              </button>
+            )}
+          </div>
+        ))}
+
+        {/* Enforcing 6 question most */}
+        {answers.length < 6 && questionType !== "judgement" && (
+          <button
+            onClick={() => setAnswers([...answers, ""])}
+            className="mt-2 px-3 py-1 border rounded hover:bg-gray-200"
+          >
+            Add Answer
+          </button>
+        )}
+      </div>
+            
+      {/* Save button */}
+      <div className="flex gap-4">
+        <button
+          onClick={handleSaveQuestion}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Save Question
+        </button>
+
+        {/* Go back button */}
+        <button
+          onClick={handleGoBack}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Go back
+        </button>
+
+      </div>
+
+      <Modal open={openSaveQuestionModal} onClose={() => {
+        setOpenSaveQuestionModal(false)
+        navigate(`/game/${params.gameId}`);
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      >
+        <div className="text-center">
+          <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+          <button
+            onClick={() => {
+              setOpenSaveQuestionModal(false)
+              navigate(`/game/${params.gameId}`);
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"    
+          >
+            Ok
+          </button>
         </div>
-    )
+      </Modal>
+
+      <Modal open={openEmptyQuestionModal} onClose={() => setOpenEmptyQuestionModal(false)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <div className="text-center">
+          <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+          <button
+            onClick={() => setOpenEmptyQuestionModal(false)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
+            OK
+          </button>
+        </div>
+      </Modal>
+
+      <Modal open={openLessThanTwoAnswerModal} onClose={() => setOpenLessThanTwoAnswerModal(false)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <div className="text-center">
+          <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+          <button
+            onClick={() => setOpenLessThanTwoAnswerModal(false)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
+            OK
+          </button>
+        </div>
+      </Modal>
+
+      <Modal open={openNoCorrectAnswerModal} onClose={() => setOpenNoCorrectAnswerModal(false)}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
+      >
+        <div className="text-center">
+          <p className="text-gray-600 mb-6 mt-6">{modalMessage}</p>
+          <button
+            onClick={() => setOpenNoCorrectAnswerModal(false)}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+          >
+            OK
+          </button>
+        </div>
+      </Modal>
+    </div>
+  )
 }   
 
 export default EditQuestion;
