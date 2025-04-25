@@ -3,180 +3,169 @@ import { useGames } from './context/useGames';
 import axios from 'axios';
 import Modal from './Modal';
 
-import {
-    BrowserRouter as Router,
-    useNavigate,
-    Link,
-} from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 function Dashboard() {
-    const navigate =  useNavigate();
-    const { games, setGames, loading, fetchGames } = useGames();
+  const navigate =  useNavigate();
+  const { games, fetchGames } = useGames();
 
-    // All the state for modals
-    const [openAddGame, setOpenAddGame] = useState(false);
-    const [openStartGame, setOpenStartGame] = useState(false);
-    const [openStopGame, setOpenStopGame] = useState(false);
-    const [openDeleteGame, setOpenDeleteGame] = useState(false);
+  // All the state for modals
+  const [openAddGame, setOpenAddGame] = useState(false);
+  const [openStartGame, setOpenStartGame] = useState(false);
+  const [openStopGame, setOpenStopGame] = useState(false);
+  const [openDeleteGame, setOpenDeleteGame] = useState(false);
 
-    const [step, setStep] = useState('confirm');
-    const [gameName, setGameName] = useState('');
-    const [selectedGameId, setSelectedGameId] = useState(null);
-    const [sessionId, setSessionId] = useState(null);
-    const [copied, setCopied] = useState(false);
+  const [step, setStep] = useState('confirm');
+  const [gameName, setGameName] = useState('');
+  const [selectedGameId, setSelectedGameId] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+  const [copied, setCopied] = useState(false);
 
-    const [uploadedGame, setUploadedGame] = useState(null);
+  const [uploadedGame, setUploadedGame] = useState(null);
 
-    const owner = localStorage.getItem('owner');
-    const token = localStorage.getItem('token');
+  const owner = localStorage.getItem('owner');
+  const token = localStorage.getItem('token');
 
-    // Function to handle show result by navigating to the result page of the session just ended
-    const handleViewResult = () => {
-        navigate(`/session/${sessionId}`);
-    }
+  // Function to handle show result by navigating to the result page of the session just ended
+  const handleViewResult = () => {
+    navigate(`/session/${sessionId}`);
+  }
 
-    useEffect(() => {
-		fetchGames();
-	}, []);
+  useEffect(() => {
+	  fetchGames();
+  }, []);
 
-    // Function to update game via PUT API
-    const handleCreateGame = async () => {
-        try {
-            let newGame;
+  // Function to update game via PUT API
+  const handleCreateGame = async () => {
+    try {
+      let newGame;
 
-            if (uploadedGame) {
-                newGame = {
-                    ...uploadedGame,
-                    useAdvancedScoring: uploadedGame.useAdvancedScoring?? false
-                }
-            } else {
-
-                newGame = {
-                    gameName: gameName,
-                    gameId: Math.floor(Math.random() * 100000000),
-                    owner: owner,
-                    questions: [],
-                    useAdvancedScoring: false, // default it to false
-                }
-            }
-
-            const updatedGames = [...Object.values(games), newGame];
-
-            await axios.put('http://localhost:5005/admin/games',
-                { games: updatedGames },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
-
-            setStep('finishAddGame')
-            await fetchGames(); // refresh imediately
-        } catch (err) {
-            console.log(err);
-            alert("Failed to create game.");
+      if (uploadedGame) {
+        newGame = {
+          ...uploadedGame,
+          useAdvancedScoring: uploadedGame.useAdvancedScoring?? false
         }
-    }
-
-    // Functio to handle delete game
-    const handleDeleteGame = async (gameId) => {
-        try {
-            const updatedGames = games.filter(game => game.gameId !== selectedGameId);
-
-            const res = await axios.put(`http://localhost:5005/admin/games`,
-                { games: updatedGames },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
-            setStep('finishDelete');
-            await fetchGames(); // refresh imediately
-        } catch (err) {
-            console.log(err);
+      } else {
+        newGame = {
+          gameName: gameName,
+          gameId: Math.floor(Math.random() * 100000000),
+          owner: owner,
+          questions: [],
+          useAdvancedScoring: false, // default it to false
         }
-    };
+      }
+      const updatedGames = [...Object.values(games), newGame];
 
-    // Function to stop a game via API
-    const handleStopGame = async () => {
-        try {
-            const res = await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
-                { mutationType: 'END' },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
+      await axios.put('http://localhost:5005/admin/games',
+        { games: updatedGames },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
 
-            const updatedGames = games.map(game => {
-                if (game.gameId === selectedGameId) {
-                    return { ...game, active: null };
-                }
-                return game;
-            });
+      setStep('finishAddGame')
+      await fetchGames(); // refresh imediately
 
-            const game = games.find(g => g.gameId === selectedGameId);
-
-            setSessionId(game.prevSessionId);
-
-            setStep('gameStopped');
-            setSelectedGameId(null);
-            await fetchGames(); // re render
-
-        } catch (err) {
-            console.log(err);
-        }
+    } catch (err) {
+      console.log(err);
+      alert("Failed to create game.");
     }
+  }
 
-    // Start a game and generating session code
-    const generateSessionCode = async () => {
-        try {
-            const res = await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
-                { mutationType: 'START' },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
-            const newSessionId = res.data.data.sessionId
+  // Functio to handle delete game
+  const handleDeleteGame = async () => {
+    try {
+      const updatedGames = games.filter(game => game.gameId !== selectedGameId);
 
-            setSessionId(newSessionId);
-            setStep('session');
-            setSelectedGameId(null);
+      await axios.put(`http://localhost:5005/admin/games`,
+        { games: updatedGames },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+      setStep('finishDelete');
+      await fetchGames(); // refresh imediately
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-            // Add sessionId into the game object
-            const updatedGames = games.map(game => {
-                if (game.gameId === selectedGameId) {
-                    return {...game, prevSessionId: newSessionId };
-                }
-                return game;
-            })
+  // Function to stop a game via API
+  const handleStopGame = async () => {
+    try {
+      await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
+        { mutationType: 'END' },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
 
-            // Save it to backend
-            await axios.put(
-                'http://localhost:5005/admin/games',
-                { games: updatedGames },
-                { headers: { 'Authorization': `Bearer ${token}` } }
-            );
+      const game = games.find(g => g.gameId === selectedGameId);
+
+      setSessionId(game.prevSessionId);
+
+      setStep('gameStopped');
+      setSelectedGameId(null);
+      await fetchGames(); // re render
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  // Start a game and generating session code
+  const generateSessionCode = async () => {
+    try {
+      const res = await axios.post(`http://localhost:5005/admin/game/${selectedGameId}/mutate`,
+        { mutationType: 'START' },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
+
+      const newSessionId = res.data.data.sessionId
+
+      setSessionId(newSessionId);
+      setStep('session');
+      setSelectedGameId(null);
+
+      // Add sessionId into the game object
+      const updatedGames = games.map(game => {
+        if (game.gameId === selectedGameId) {
+          return {...game, prevSessionId: newSessionId };
+        }
+        return game;
+      })
+
+      // Save it to backend
+      await axios.put(
+        'http://localhost:5005/admin/games',
+        { games: updatedGames },
+        { headers: { 'Authorization': `Bearer ${token}` } }
+      );
             
-            await fetchGames(); // re render
+      await fetchGames(); // re render
 
-        } catch (err) {
-            console.log(err);
+    } catch (err) {
+      console.log(err);
 
-            if (err.response.status === 400) {
-                setStep('alreadyActive') // session is on, change the modal for user
-            }
-        }
-    };
+      if (err.response.status === 400) {
+        setStep('alreadyActive') // session is on, change the modal for user
+      }
+    }
+  };
 
 
-    return (
-        <>
-            <div className="">
-                <div className='border-b'>
-                    <div className="flex items-center justify-between mx-10 mt-10 pb-4">
-                        <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
-                        <button
-                            aria-label="Add a new game"
-                            className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
-                            onClick={() => {
-                                setStep('confirm');
-                                setOpenAddGame(true);
-                            }}
-                        >
-                            Add Game
-                        </button>
+  return (
+    <>
+      <div className="">
+        <div className='border-b'>
+          <div className="flex items-center justify-between mx-10 mt-10 pb-4">
+            <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
+            <button
+              aria-label="Add a new game"
+              className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
+              onClick={() => {
+                setStep('confirm');
+                setOpenAddGame(true);
+              }}
+            >
+              Add Game
+            </button>
 
-                    </div>
+        </div>
 
                 </div>
 
