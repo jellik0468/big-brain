@@ -34,7 +34,7 @@ function QuestionMedia({ media }) {
   // if the question has a video
   if (media.videoUrl) {
     return (
-        <YouTubeEmbed url={media.videoUrl} />
+      <YouTubeEmbed url={media.videoUrl} />
     );
   }
 
@@ -203,137 +203,138 @@ function PlaySessionPage() {
   }, [sessionEnded, playerId]);
   
 
-    // Reset selection, timer, correct answers, correctness on new question
-    useEffect(() => {
-        if (!question) return;
+  // Reset selection, timer, correct answers, correctness on new question
+  useEffect(() => {
+    if (!question) return;
 
-        setSelected(question.type === 'multiple' ? [] : null);
-        setCorrectAnswersArr(null);
-        setIsCorrect(null);
-        setEarnedPoints(0);
+    setSelected(question.type === 'multiple' ? [] : null);
+    setCorrectAnswersArr(null);
+    setIsCorrect(null);
+    setEarnedPoints(0);
 
-        // compute initial remainingTime
-        const startMs = new Date(question.isoTimeLastQuestionStarted).getTime();
-        const endMs   = startMs + question.duration * 1000;
-        setRemainingTime(Math.max(0, Math.ceil((endMs - Date.now()) / 1000)));
-    }, [question]);
+    // compute initial remainingTime
+    const startMs = new Date(question.isoTimeLastQuestionStarted).getTime();
+    const endMs   = startMs + question.duration * 1000;
+    setRemainingTime(Math.max(0, Math.ceil((endMs - Date.now()) / 1000)));
+  }, [question]);
 
-    // Countdown + fetch correct answers & compute correctness
-    useEffect(() => {
-        if (!question || sessionEnded) return;
-        let cancelled = false;
+  // Countdown + fetch correct answers & compute correctness
+  useEffect(() => {
+    if (!question || sessionEnded) return;
+    let cancelled = false;
 
-        const startMs = new Date(question.isoTimeLastQuestionStarted).getTime();
-        const endMs = startMs + question.duration * 1000;
+    const startMs = new Date(question.isoTimeLastQuestionStarted).getTime();
+    const endMs = startMs + question.duration * 1000;
 
-        const tick = async () => {
-            const timeLeft = Math.max(0, Math.ceil((endMs - Date.now()) / 1000));
-            if (cancelled) return;
-            setRemainingTime(timeLeft);
+    const tick = async () => {
+      const timeLeft = Math.max(0, Math.ceil((endMs - Date.now()) / 1000));
+      if (cancelled) return;
+      setRemainingTime(timeLeft);
 
-            if (timeLeft === 0 && correctAnswersArr === null) {
-              try {
-                    const res = await axios.get(
-                        `http://localhost:5005/play/${playerId}/answer`
-                    );
-                    const correctArr = res.data.answers || [];
-                    setCorrectAnswersArr(correctArr);
+      if (timeLeft === 0 && correctAnswersArr === null) {
+        try {
+          const res = await axios.get(
+            `http://localhost:5005/play/${playerId}/answer`
+          );
 
-                    // compute user's answers
-                    const userArr = question.type === 'multiple'
-                        ? (Array.isArray(selected) ? selected : []).map(i => question.answers[i])
-                        : selected !== null
-                        ? [question.answers[selected]]
-                        : [];
+          const correctArr = res.data.answers || [];
+          setCorrectAnswersArr(correctArr);
 
-                    // determine correctness
-                    const correctSet = new Set(correctArr);
-                    const correct =
-                        userArr.length === correctSet.size &&
-                        userArr.every(ans => correctSet.has(ans));
+          // compute user's answers
+          const userArr = question.type === 'multiple'
+            ? (Array.isArray(selected) ? selected : []).map(i => question.answers[i])
+            : selected !== null
+              ? [question.answers[selected]]
+              : [];
 
-                    // Setting state
-                    setIsCorrect(correct);
-                    setEarnedPoints(correct ? question.points : 0);
-                } catch (err) {
-                    console.log('Failed to fetch correct answer', err);
-                }
-            }
-        };
+          // determine correctness
+          const correctSet = new Set(correctArr);
+          const correct =
+            userArr.length === correctSet.size &&
+            userArr.every(ans => correctSet.has(ans));
 
-        tick();
-        const iv = setInterval(tick, 1000);
-        return () => {
-            cancelled = true;
-            clearInterval(iv);
-        };
-    }, [question, selected, correctAnswersArr, playerId, sessionEnded]);
-
-    // Handle user selecting an option by index
-    const handleSelect = index => {
-        if (remainingTime <= 0 || correctAnswersArr !== null || sessionEnded) {
-            // no changes allowed after time's up, correct answer is shown 
-            // and prevent it is called when  sessionEnded
-            return;
+          // Setting state
+          setIsCorrect(correct);
+          setEarnedPoints(correct ? question.points : 0);
+        } catch (err) {
+          console.log('Failed to fetch correct answer', err);
         }
-
-        let next = question.type === 'multiple'
-            ? (Array.isArray(selected) ? selected : []).includes(index)
-            ? selected.filter(i => i !== index)
-            : [...selected, index]
-            : index;
-
-        setSelected(next);
-
-        // Build payload as array of strings
-        const answersPayload =
-            question.type === 'multiple'
-                ? (Array.isArray(next) ? next : []).map(i => question.answers[i])
-                : [question.answers[next]];
-
-        axios.put(`http://localhost:5005/play/${playerId}/answer`, {
-            answers: answersPayload
-        })
+      }
     };
+
+    tick();
+    const iv = setInterval(tick, 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
+  }, [question, selected, correctAnswersArr, playerId, sessionEnded]);
+
+  // Handle user selecting an option by index
+  const handleSelect = index => {
+    if (remainingTime <= 0 || correctAnswersArr !== null || sessionEnded) {
+      // no changes allowed after time's up, correct answer is shown 
+      // and prevent it is called when  sessionEnded
+      return;
+    }
+
+    let next = question.type === 'multiple'
+      ? (Array.isArray(selected) ? selected : []).includes(index)
+        ? selected.filter(i => i !== index)
+        : [...selected, index]
+      : index;
+
+    setSelected(next);
+
+    // Build payload as array of strings
+    const answersPayload =
+      question.type === 'multiple'
+        ? (Array.isArray(next) ? next : []).map(i => question.answers[i])
+        : [question.answers[next]];
+
+    axios.put(`http://localhost:5005/play/${playerId}/answer`, {
+      answers: answersPayload
+    })
+  };
     
-    // Render logic
-    if (sessionEnded && !question) {
-        return (
-            <div className="flex items-center justify-center h-screen bg-white">
-                <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded shadow-lg text-center">
-                    <span className="block text-lg font-semibold">
-                        The session has been ended by the host
-                    </span>
-                </div>
-            </div>
-        )
-    }
+  // Render logic
+  if (sessionEnded && !question) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded shadow-lg text-center">
+          <span className="block text-lg font-semibold">
+            The session has been ended by the host
+          </span>
+        </div>
+      </div>
+    )
+  }
 
 
-    if (loadingStatus) {
-        return <p className="text-center mt-10">Checking game status…</p>;
-    }
+  if (loadingStatus) {
+    return <p className="text-center mt-10">Checking game status…</p>;
+  }
 
-    // Background video when player is in lobby waiting
-    if (!hasStarted) {
-        return (
-            <div className="relative w-full h-screen bg-black">
-                {/* Text Header area */}
-                <div className="w-full h-[100px] flex items-center z-10 px-10 relative">
-                    <p className="font-medium text-white text-2xl sm:text-4xl md:text-4xl lg:text-6xl">
-                        Please wait for the host to start the game…
-                    </p>
-                </div>
+  // Background video when player is in lobby waiting
+  if (!hasStarted) {
+    return (
+      <div className="relative w-full h-screen bg-black">
+        {/* Text Header area */}
+        <div className="w-full h-[100px] flex items-center z-10 px-10 relative">
+          <p className="font-medium text-white text-2xl sm:text-4xl md:text-4xl lg:text-6xl">
+            Please wait for the host to start the game…
+          </p>
+        </div>
     
-                <video
-                    src={videoBg}
-                    autoPlay
-                    loop
-                    className="absolute w-full h-[calc(100vh-100px)] object-contain bg-black"
-                />
-            </div>
-        );
-    }
+        <video
+          src={videoBg}
+          autoPlay
+          loop
+          className="absolute w-full h-[calc(100vh-100px)] object-contain bg-black"
+        />
+      </div>
+    );
+  }
 
     if (!question && !sessionEnded) {
         return <p className="text-center mt-10">Loading question…</p>;
