@@ -358,193 +358,193 @@ function Dashboard() {
         ) : null}
       </Modal>
 
-            {/* Modal for delete game button*/}
-            <Modal open={openDeleteGame} onClose={() => {
-            setStep('confirm');
-                setSelectedGameId(null);
-                setOpenDeleteGame(false);
-            }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
-            >
-                {step === 'confirm' ? (
-                    <>
-                        <div className="text-center w-56">
-                            <h3 className="text-lg font-black text-red-800">Are you sure you want to delete this game</h3>
-                        </div>
+      {/* Modal for delete game button*/}
+      <Modal open={openDeleteGame} onClose={() => {
+        setStep('confirm');
+        setSelectedGameId(null);
+        setOpenDeleteGame(false);
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      >
+        {step === 'confirm' ? (
+          <>
+            <div className="text-center w-56">
+              <h3 className="text-lg font-black text-red-800">Are you sure you want to delete this game</h3>
+            </div>
 
-                        <div className='flex justify-between gap-2'>
-                            <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                            onClick={handleDeleteGame}>
-                                Delete
-                            </button>
-                            <button
-                                className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                                onClick={() => {setOpenDeleteGame(false)}}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </>
-                ) : step === 'finishDelete' ? (
-                    <>
-                        <div className='text-center'>
-                            <p className='font-semibold text-lg'> Game have been deleted!</p>
-                            <button 
-                                className='btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'
-                                onClick={() => {
-                                    setStep('confirm');
-                                    setSelectedGameId(null);
-                                    setOpenDeleteGame(false);
-                                }}
-                            >
-                                OK
-                            </button>
-                        </div>
-                    </>
-                ) : null }
-            </Modal>
+            <div className='flex justify-between gap-2'>
+              <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
+                onClick={handleDeleteGame}>
+                Delete
+              </button>
+              <button
+                className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
+                onClick={() => {setOpenDeleteGame(false)}}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        ) : step === 'finishDelete' ? (
+          <>
+            <div className='text-center'>
+              <p className='font-semibold text-lg'> Game have been deleted!</p>
+              <button 
+                className='btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'
+                onClick={() => {
+                  setStep('confirm');
+                  setSelectedGameId(null);
+                  setOpenDeleteGame(false);
+                }}
+              >
+                OK
+              </button>
+            </div>
+          </>
+        ) : null }
+      </Modal>
 
-            {/* Modal for start game button*/}
-            <Modal open={openStartGame} onClose={() => {
-                setOpenStartGame(false)
+      {/* Modal for start game button*/}
+      <Modal open={openStartGame} onClose={() => {
+        setOpenStartGame(false)
+        setSessionId(null);
+        setCopied(false);
+        setStep('confirm')
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      >
+        {step === 'confirm' ? (
+          <>
+            <p>Are you sure you want to start the game?</p>
+            <div className='flex gap-4 mt-3 justify-center'>
+              <button onClick={generateSessionCode} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
+                mt-3 cursor-pointer hover:bg-zinc-400'>
+                Yes
+              </button>
+
+              <button onClick={() => setOpenStartGame(false)} className='btn p-3 pr-5 pl-5
+                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+                No
+              </button>
+            </div>
+          </>
+        ) : step === 'session' && sessionId ? (
+        
+          <div>
+            <div className='text-center'>
+              <p className='font-semibold text-lg'> Game Started!</p>
+              <p className='mt-2'>Session Code:</p>
+              <h2 className='text-2l font-bold tracking-wider mt-1'>{sessionId}</h2>
+
+              <button
+                className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
+                onClick={() => {
+                  const link = `${window.location.origin}/join/${sessionId}`;
+                  navigator.clipboard.writeText(link);
+                  setCopied('true');
+                }}
+                aria-label="Copy join link to clipboard"
+                aria-live="assertive"
+              >
+                Copy Join Link
+              </button>
+
+              {copied && (
+                <p className="mt-2 text-sm text-red-600 mb-3 font-medium" aria-live="assertive">
+                  Link copied to clipboard!
+                </p>
+              )}
+              <p className="text-sm text-gray-700">
+                Manage your past game sessions from the admin panel.
+              </p>
+              <button
+                className="btn w-full border rounded-md mt-1 cursor-pointer hover:bg-zinc-400"
+                onClick={() => {
+                  navigate(`/session/${sessionId}`);
+                }}
+              >
+                Go to Admin panel for this session
+              </button>
+
+              <button
+                className='btn w-full border rounded -md mt-4 cursor-pointer hover:bg-zinc-400'
+                onClick={() => {
+                  // CleanUp
+                  setOpenStartGame(false)
+                  setSessionId(null);
+                  setCopied(false);
+                  setStep('confirm')
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        ) : step === 'alreadyActive' ? (
+          <div className="text-center">
+            <p className="font-bold text-xl text-yellow-600">Game Already Running!!!</p>
+            <p className="mt-2 text-sm text-gray-600">
+              This game already has an active session. You can&apos;t start another one until it&apos;s ended.
+            </p>
+            <button
+              className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
+              onClick={() => {
+                setOpenStartGame(false);
+                setStep('confirm');
                 setSessionId(null);
-                setCopied(false);
-                setStep('confirm')
-            }}
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title"
+              }}
             >
-                {step === 'confirm' ? (
-                    <>
-                        <p>Are you sure you want to start the game?</p>
-                        <div className='flex gap-4 mt-3 justify-center'>
-                            <button onClick={generateSessionCode} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
-                                mt-3 cursor-pointer hover:bg-zinc-400'>
-                            Yes
-                            </button>
+              Close
+            </button>
+          </div>
+        ) : null
+        }
+      </Modal>
 
-                            <button onClick={() => setOpenStartGame(false)} className='btn p-3 pr-5 pl-5
-                                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
-                            No
-                            </button>
-                        </div>
-                    </>
-                    ) : step === 'session' && sessionId ? (
-                        <div>
-                            <div className='text-center'>
-                                <p className='font-semibold text-lg'> Game Started!</p>
-                                <p className='mt-2'>Session Code:</p>
-                                <h2 className='text-2l font-bold tracking-wider mt-1'>{sessionId}</h2>
+      {/* Modal for stop game button*/}
+      <Modal open={openStopGame} onClose={() => setOpenStopGame(false)} 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title">
+        {step === 'confirm' ? (
+          <>
+            <p>Are you sure you want to stop the game?</p>
+            <div className='flex gap-4 mt-3 justify-center'>
+              <button onClick={handleStopGame} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
+                mt-3 cursor-pointer hover:bg-zinc-400'>
+              Yes
+              </button>
 
-                                <button
-                                    className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
-                                    onClick={() => {
-                                        const link = `${window.location.origin}/join/${sessionId}`;
-                                        navigator.clipboard.writeText(link);
-                                        setCopied('true');
-                                    }}
-                                    aria-label="Copy join link to clipboard"
-                                    aria-live="assertive"
-                                >
-                                    Copy Join Link
-                                </button>
-
-                                {copied && (
-                                    <p className="mt-2 text-sm text-red-600 mb-3 font-medium" aria-live="assertive">
-                                        Link copied to clipboard!
-                                    </p>
-                                )}
-                                <p className="text-sm text-gray-700">
-                                    Manage your past game sessions from the admin panel.
-                                </p>
-                                <button
-                                    className="btn w-full border rounded-md mt-1 cursor-pointer hover:bg-zinc-400"
-                                    onClick={() => {
-                                        navigate(`/session/${sessionId}`);
-                                    }}
-                                >
-                                    Go to Admin panel for this session
-                                </button>
-
-                                <button
-                                    className='btn w-full border rounded -md mt-4 cursor-pointer hover:bg-zinc-400'
-                                    onClick={() => {
-                                        // CleanUp
-                                        setOpenStartGame(false)
-                                        setSessionId(null);
-                                        setCopied(false);
-                                        setStep('confirm')
-                                    }}
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </div>
-                    ) : step === 'alreadyActive' ? (
-                        <div className="text-center">
-                            <p className="font-bold text-xl text-yellow-600">Game Already Running!!!</p>
-                            <p className="mt-2 text-sm text-gray-600">
-                                This game already has an active session. You can't start another one until it's ended.
-                            </p>
-                            <button
-                                className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
-                                onClick={() => {
-                                    setOpenStartGame(false);
-                                    setStep('confirm');
-                                    setSessionId(null);
-                                }}
-                            >
-                                Close
-                            </button>
-                        </div>
-                    ) : null
-                }
-            </Modal>
-
-            {/* Modal for stop game button*/}
-            <Modal open={openStopGame} onClose={() => setOpenStopGame(false)} 
-                role="dialog"
-                aria-modal="true"
-                aria-labelledby="modal-title">
-                {step === 'confirm' ? (
-                    <>
-                        <p>Are you sure you want to stop the game?</p>
-                        <div className='flex gap-4 mt-3 justify-center'>
-                            <button onClick={handleStopGame} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
-                                mt-3 cursor-pointer hover:bg-zinc-400'>
-                            Yes
-                            </button>
-
-                            <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
-                                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
-                            No
-                            </button>
-                        </div>
-                    </>
-                    ) : step === 'gameStopped' ? (
-                        <div>
-                            <p>The game has ended, would you like to view the results?</p>
-                            <div className='flex gap-4 mt-3 justify-center'>
-                                <button onClick={handleViewResult} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
-                                    mt-3 cursor-pointer hover:bg-zinc-400'>
-                                    Yes
-                                </button>
-
-                                <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
-                                    border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
-                                    No
-                                </button>
-                            </div>
-                        </div>
-                    ) : null
-                }
-            </Modal>
-        </>
-    )
-
+              <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
+                  border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+                No
+              </button>
+            </div>
+          </>
+        ) : step === 'gameStopped' ? (
+          <div>
+            <p>The game has ended, would you like to view the results?</p>
+            <div className='flex gap-4 mt-3 justify-center'>
+              <button onClick={handleViewResult} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
+                mt-3 cursor-pointer hover:bg-zinc-400'>
+                Yes
+              </button>
+              
+              <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
+                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+                No
+              </button>
+            </div>
+          </div>
+        ) : null
+        }
+      </Modal>
+    </>
+  )
 }
 
 export default Dashboard
