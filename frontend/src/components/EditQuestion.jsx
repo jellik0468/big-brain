@@ -4,185 +4,185 @@ import axios from 'axios';
 import Modal from './Modal';
 
 function EditQuestion() {
-    const params = useParams();
-    const navigate = useNavigate();
-    const token = localStorage.getItem('token');
+  const params = useParams();
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
 
-    //setting up all the state field to keep track of value
-    const [question, setQuestion] = useState(null);
-    const [questionType, setQuestionType] = useState("single") // default single for dropdown box purpose
-    const [questionText, setQuestionText] = useState("");
-    const [duration, setDuration] = useState(30); // default 30 like kahoot
-    const [points, setPoints] = useState(0);
-    const [youtubeUrl, setYoutubeUrl] = useState("");
-    const [imageBase64, setImageBase64] = useState("");
-    const [answers, setAnswers] = useState(["", ""]);
-    const [correctAnswers, setCorrectAnswers] = useState([]);
-    const [imageInputKey, setImageInputKey] = useState(Date.now());
+  //setting up all the state field to keep track of value
+  const [questionType, setQuestionType] = useState("single") // default single for dropdown box purpose
+  const [questionText, setQuestionText] = useState("");
+  const [duration, setDuration] = useState(30); // default 30 like kahoot
+  const [points, setPoints] = useState(0);
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+  const [imageBase64, setImageBase64] = useState("");
+  const [answers, setAnswers] = useState(["", ""]);
+  const [correctAnswers, setCorrectAnswers] = useState([]);
+  const [imageInputKey, setImageInputKey] = useState(Date.now());
 
-    //modal
-    const [openSaveQuestionModal, setOpenSaveQuestionModal] = useState(false);
-    const [openEmptyQuestionModal, setOpenEmptyQuestionModal] = useState(false);
-    const [openLessThanTwoAnswerModal, setOpenLessThanTwoAnswerModal] = useState(false);
-    const [openNoCorrectAnswerModal, setOpenNoCorrectAnswerModal] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
+  //modal
+  const [openSaveQuestionModal, setOpenSaveQuestionModal] = useState(false);
+  const [openEmptyQuestionModal, setOpenEmptyQuestionModal] = useState(false);
+  const [openLessThanTwoAnswerModal, setOpenLessThanTwoAnswerModal] = useState(false);
+  const [openNoCorrectAnswerModal, setOpenNoCorrectAnswerModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
     
-    // Updates question when question type changes, we clear every answers entered when update
-    useEffect(() => {
-        if (questionType === "single" || questionType === "multiple") {
-            // Ensure at least two empty answers
-            setAnswers(["", ""]);
-            setCorrectAnswers([]);
-        } else if (questionType === "judgement") {
-            // For judgement True false
-            setAnswers(["True", "False"]);
-            setCorrectAnswers([]);
-        }
-    }, [questionType]);
+  // Updates question when question type changes, we clear every answers entered when update
+  useEffect(() => {
+    if (questionType === "single" || questionType === "multiple") {
+      // Ensure at least two empty answers
+      setAnswers(["", ""]);
+      setCorrectAnswers([]);
+    } else if (questionType === "judgement") {
+      // For judgement True false
+      setAnswers(["True", "False"]);
+      setCorrectAnswers([]);
+    }
+  }, [questionType]);
 
-    // When we load or refresh the page call fetchGameAndQuestion reload the page
-    useEffect(() => {
-        const fetchGameAndQuestion = async () => {
-            try {
-                const res = await axios.get('http://localhost:5005/admin/games', {
-                    headers: { 'Authorization': `Bearer ${token}` },
-                });
-                const game = res.data.games.find(g => String(g.id) === params.gameId);
-                const q = game?.questions[params.questionId];
-                if (!q) return alert("Question not found!!!");
+  // When we load or refresh the page call fetchGameAndQuestion reload the page
+  useEffect(() => {
+    const fetchGameAndQuestion = async () => {
+      try {
+        const res = await axios.get('http://localhost:5005/admin/games', {
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+        const game = res.data.games.find(g => String(g.id) === params.gameId);
+        const q = game?.questions[params.questionId];
+        if (!q) return alert("Question not found!!!");
 
-                // Loading all the existing value if not exist use default
-                setQuestion(q);
-                setQuestionType(q.type || "single");
-                setQuestionText(q.text || "");
-                setDuration(q.duration || 30);
-                setPoints(q.points || 1);   //default 1 point
+        // Loading all the existing value if not exist use default
+        setQuestionType(q.type || "single");
+        setQuestionText(q.text || "");
+        setDuration(q.duration || 30);
+        setPoints(q.points || 1);   //default 1 point
                 
-                // pull media out of the database else dEfalt it  to empty
-                const media = q.media || {};
-                setYoutubeUrl(media.videoUrl || "");
-                setImageBase64(media.imageUrl || "");
+        // pull media out of the database else dEfalt it  to empty
+        const media = q.media || {};
+        setYoutubeUrl(media.videoUrl || "");
+        setImageBase64(media.imageUrl || "");
 
-                setAnswers(q.answers || ["", ""]);
-                // stores correct answers by index of answers
-                setCorrectAnswers(
-                    Array.isArray(q.correctAnswers)
-                    ? q.correctAnswers.map(ans => q.answers.indexOf(ans)).filter(i => i >= 0)
-                    : []
-                );
-            } catch (err) {
-                console.log(err);
-            }
-        };
-    
-        fetchGameAndQuestion();
-    }, [params.gameId, params.questionId, token]);
-
-    // Converting image
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImageBase64(reader.result);
-        };
-        reader.readAsDataURL(file);
+        setAnswers(q.answers || ["", ""]);
+        // stores correct answers by index of answers
+        setCorrectAnswers(
+          Array.isArray(q.correctAnswers)
+            ? q.correctAnswers.map(ans => q.answers.indexOf(ans)).filter(i => i >= 0)
+            : []
+        );
+      } catch (err) {
+        console.log(err);
+      }
     };
+    
+    fetchGameAndQuestion();
+  }, [params.gameId, params.questionId, token]);
 
-    // Removing uploaded Image
-    const handleDeleteImg = (e) => {
-        setImageBase64(null);
-        setImageInputKey(Date.now());
+  // Converting image
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+      setImageBase64(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Removing uploaded Image
+  const handleDeleteImg = () => {
+    setImageBase64(null);
+    setImageInputKey(Date.now());
+  }
+
+  // Removing typed in url
+  const handleDeleteUrl = () => {
+    setYoutubeUrl("");  // Clears the input
+  };
+
+  // Sending api to backend to save current edit
+  const handleSaveQuestion = async () => {
+    if (!questionText || questionText.trim() === '') {
+      setModalMessage("You can't have an empty question!")
+      setOpenEmptyQuestionModal(true);
+      return;
+    }
+        
+    // Ensure at least two valid answers.
+    const nonEmptyAnswers = answers.filter(a => a.trim() !== "");
+    if (nonEmptyAnswers.length < 2) {
+      setModalMessage("You can't have less than two valid answers");
+      setOpenLessThanTwoAnswerModal(true);
+      return;
     }
 
-    // Removing typed in url
-    const handleDeleteUrl = (e) => {
-        setYoutubeUrl("");  // Clears the input
-    };
+    // storing the correct answers indices
+    const cleanedCorrectIndexes = correctAnswers.filter(
+      index => answers[index] && answers[index].trim() !== ""
+    );
 
-    // Sending api to backend to save current edit
-    const handleSaveQuestion = async () => {
-        if (!questionText || questionText.trim() === '') {
-            setModalMessage("You can't have an empty question!")
-            setOpenEmptyQuestionModal(true);
-            return;
-        }
-        
-        // Ensure at least two valid answers.
-        const nonEmptyAnswers = answers.filter(a => a.trim() !== "");
-        if (nonEmptyAnswers.length < 2) {
-            setModalMessage("You can't have less than two valid answers");
-            setOpenLessThanTwoAnswerModal(true);
-            return;
-        }
+    // Ensure at least one answer is correct
+    if (cleanedCorrectIndexes.length < 1) {
+      setModalMessage("You need to have at least one correct answer");
+      setOpenNoCorrectAnswerModal(true);
+      return;
+    }
 
-        // storing the correct answers indices
-        const cleanedCorrectIndexes = correctAnswers.filter(
-            index => answers[index] && answers[index].trim() !== ""
-        );
+    try {
+      // Step 1: Fetch all games
+      const res = await axios.get('http://localhost:5005/admin/games', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
 
-        // Ensure at least one answer is correct
-        if (cleanedCorrectIndexes.length < 1) {
-            setModalMessage("You need to have at least one correct answer");
-            setOpenNoCorrectAnswerModal(true);
-            return;
-        }
-
-        try {
-            // Step 1: Fetch all games
-            const res = await axios.get('http://localhost:5005/admin/games', {
-                headers: { 'Authorization': `Bearer ${token}` },
-            });
-
-            const games = res.data.games;
-            const gameIndex = games.findIndex(g => String(g.gameId) === String(params.gameId));
-            if (gameIndex === -1) {
-                return alert("Game not found!");
-            }
+      const games = res.data.games;
+      const gameIndex = games.findIndex(g => String(g.gameId) === String(params.gameId));
+      if (gameIndex === -1) {
+        return alert("Game not found!");
+      }
     
-            // Steo 2 : Copy games and game
-            const updatedGames = [...games];
-            const updatedGame = { ...updatedGames[gameIndex] };
+      // Steo 2 : Copy games and game
+      const updatedGames = [...games];
+      const updatedGame = { ...updatedGames[gameIndex] };
 
-            // Step 3 : update the specific question
-            const updatedQuestion = {
-                type: questionType,
-                text: questionText,
-                duration: duration,
-                points: points,
-                media: {
-                    imageUrl: imageBase64 || null,
-                    videoUrl: youtubeUrl || null
-                },
-                answers: answers,
-                correctAnswers: cleanedCorrectIndexes.map(i => answers[i]), // Convert index to literal answer string
-            }
+      // Step 3 : update the specific question
+      const updatedQuestion = {
+        type: questionType,
+        text: questionText,
+        duration: duration,
+        points: points,
+        media: {
+          imageUrl: imageBase64 || null,
+          videoUrl: youtubeUrl || null
+        },
+        answers: answers,
+        correctAnswers: cleanedCorrectIndexes.map(i => answers[i]), // Convert index to literal answer string
+      }
 
-            // Step 4 : replace the old question we are editing with the new value 
-            const updatedQuestions = [...updatedGame.questions];
-            updatedQuestions[Number(params.questionId)] = updatedQuestion;
-            updatedGame.questions = updatedQuestions;
+      // Step 4 : replace the old question we are editing with the new value 
+      const updatedQuestions = [...updatedGame.questions];
+      updatedQuestions[Number(params.questionId)] = updatedQuestion;
+      updatedGame.questions = updatedQuestions;
     
-            updatedGames[gameIndex] = updatedGame;
+      updatedGames[gameIndex] = updatedGame;
     
-            // Step 5 : Send updated games back to backend
-            await axios.put('http://localhost:5005/admin/games', {
-                games: updatedGames,
-            }, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
-            setModalMessage('Question edit saved successfully!')
-            setOpenSaveQuestionModal(true);
+      // Step 5 : Send updated games back to backend
+      await axios.put('http://localhost:5005/admin/games', {
+        games: updatedGames,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setModalMessage('Question edit saved successfully!')
+      setOpenSaveQuestionModal(true);
 
-        } catch (err) {
-            console.error(err);
-            alert("Failed to update question.");
-        }
-    };
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update question.");
+    }
+  };
 
-    const handleGoBack = () => {
-        navigate(`/game/${params.gameId}`);
-    };
+  const handleGoBack = () => {
+    navigate(`/game/${params.gameId}`);
+  };
 
     return (
         <div className="p-6 max-w-2xl mx-auto space-y-4">
