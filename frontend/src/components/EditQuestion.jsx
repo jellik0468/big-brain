@@ -184,82 +184,81 @@ function EditQuestion() {
     navigate(`/game/${params.gameId}`);
   };
 
-    return (
-        <div className="p-6 max-w-2xl mx-auto space-y-4">
-            <h2 className="text-2xl font-bold">Edit Question {Number(params.questionId) + 1}</h2>
+  return (
+    <div className="p-6 max-w-2xl mx-auto space-y-4">
+      <h2 className="text-2xl font-bold">Edit Question {Number(params.questionId) + 1}</h2>
 
-            <label htmlFor="questionType" className="block">
-                Question Type:
-            <select value={questionType} onChange={(e) => setQuestionType(e.target.value)} className="w-full border p-1 rounded">
-                <option value="single">Single Choice</option>
-                <option value="multiple">Multiple Choice</option>
-                <option value="judgement">Judgement</option>
-            </select>
-            </label>
+      <label htmlFor="questionType" className="block">
+        Question Type:
+        <select value={questionType} onChange={(e) => setQuestionType(e.target.value)} className="w-full border p-1 rounded">
+          <option value="single">Single Choice</option>
+          <option value="multiple">Multiple Choice</option>
+          <option value="judgement">Judgement</option>
+        </select>
+      </label>
 
-            <label htmlFor="questionText" className="block">
-                Question:
-                <input value={questionText} onChange={(e) => setQuestionText(e.target.value)} className="w-full border p-1 rounded" />
-            </label>
+      <label htmlFor="questionText" className="block">
+        Question:
+        <input value={questionText} onChange={(e) => setQuestionText(e.target.value)} className="w-full border p-1 rounded" />
+      </label>
 
-            <label htmlFor="duration" className="block">
-                Time Limit (seconds):
-                <input type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full border p-1 rounded" />
-            </label>
+      <label htmlFor="duration" className="block">
+        Time Limit (seconds):
+        <input type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className="w-full border p-1 rounded" />
+      </label>
 
-            <label htmlFor="points" className="block">
-                Points:
-                <input type="number" value={points} onChange={(e) => setPoints(Number(e.target.value))} className="w-full border p-1 rounded" />
-            </label>
+      <label htmlFor="points" className="block">
+        Points:
+        <input type="number" value={points} onChange={(e) => setPoints(Number(e.target.value))} className="w-full border p-1 rounded" />
+      </label>
 
-            <div className="flex items-center gap-2">
-                <label htmlFor="youtubeUrl" className="flex items-center gap-2 w-full">
-                    YouTube URL (optional):
-                    <input
-                        value={youtubeUrl}
-                        onChange={(e) => setYoutubeUrl(e.target.value)}
-                        className="flex-1 border p-1 rounded"
-                    />
-                </label>
-                {/* Only show up when the URL has content in it */}
-                {youtubeUrl && (
-                <button
-                    className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
-                    onClick={handleDeleteUrl}
-                >
-                    Delete URL
-                </button>
-                )}
-            </div>
+      <div className="flex items-center gap-2">
+        <label htmlFor="youtubeUrl" className="flex items-center gap-2 w-full">
+          YouTube URL (optional):
+          <input
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            className="flex-1 border p-1 rounded"
+          />
+        </label>
+        {/* Only show up when the URL has content in it */}
+        {youtubeUrl && (
+          <button
+            className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
+            onClick={handleDeleteUrl}
+          >
+            Delete URL
+          </button>
+        )}
+      </div>
 
-            <div className="flex items-center gap-2">
-                <label htmlFor="imageUpload" className="block">
-                    Upload Image (optional):
-                    <input type="file" accept="image/*" onChange={handleImageUpload}
-                    key={imageInputKey}
-                    className="block w-full text-sm text-gray-700
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border file:mb-3
-                                file:text-sm file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-200
-                                file:cursor-pointer"
-                    />
-                </label>
-                {/* Only show up when the image exist */}
-                {imageBase64 && (
-                <div className="flex items-center gap-4">
-                    <img src={imageBase64} alt="Preview" className="h-32 object-contain" />
-                    <button
-                        className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
-                        onClick={handleDeleteImg}
-                    >
-                        Delete Image
-                    </button>
-                </div>
-                )}
-
-            </div>
+      <div className="flex items-center gap-2">
+        <label htmlFor="imageUpload" className="block">
+          Upload Image (optional):
+          <input type="file" accept="image/*" onChange={handleImageUpload}
+            key={imageInputKey}
+            className="block w-full text-sm text-gray-700
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border file:mb-3
+                    file:text-sm file:font-semibold
+                    file:bg-blue-50 file:text-blue-700
+                    hover:file:bg-blue-200
+                    file:cursor-pointer"
+          />
+        </label>
+        {/* Only show up when the image exist */}
+        {imageBase64 && (
+          <div className="flex items-center gap-4">
+            <img src={imageBase64} alt="Preview" className="h-32 object-contain" />
+            <button
+              className="border p-2 rounded-xl whitespace-nowrap hover:bg-gray-300"
+              onClick={handleDeleteImg}
+            >
+              Delete Image
+            </button>
+          </div>
+        )}
+      </div>
             
             {/* Answers field */}
             <div>
