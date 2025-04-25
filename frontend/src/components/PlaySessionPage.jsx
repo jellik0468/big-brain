@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import videoBg from '../assets/videoBg.mp4'
@@ -6,192 +6,201 @@ import { useGames } from './context/useGames';
 
 // Helper function to get youtube link and play with iframe
 function YouTubeEmbed({ url }) {
-    if (!url) return null;
+  if (!url) return null;
 
-    // extrac Youtube video ID
-    const id = url.split('v=')[1]?.split('&')[0] ?? '';
-    const embedUrl = `https://www.youtube.com/embed/${id}`;
-    return (
-        <div className="mb-4 aspect-video w-full rounded overflow-hidden">
-            <iframe
-                title="YouTube preview"
-                aria-label={'Embedded YouTube video'}
-                src={embedUrl}
-                allow="autoplay;"
-                aria-hidden="true"
-                className="w-full h-full"
-            />
-        </div>
-    );
+  // extrac Youtube video ID
+  const id = url.split('v=')[1]?.split('&')[0] ?? '';
+  const embedUrl = `https://www.youtube.com/embed/${id}`;
+
+  return (
+    <div className="mb-4 aspect-video w-full rounded overflow-hidden">
+      <iframe
+        title="YouTube preview"
+        aria-label={'Embedded YouTube video'}
+        src={embedUrl}
+        allow="autoplay;"
+        aria-hidden="true"
+        className="w-full h-full"
+      />
+    </div>
+  );
 }
 
 // Helper funcction to place  media
 // If video doesn't exist check image else no media shown
 function QuestionMedia({ media }) {
-    if (!media) return null;
+  if (!media) return null;
 
-    // if the question has a video
-    if (media.videoUrl) {
-        return (
-            <YouTubeEmbed url={media.videoUrl} />
-        );
-    }
+  // if the question has a video
+  if (media.videoUrl) {
+    return (
+        <YouTubeEmbed url={media.videoUrl} />
+    );
+  }
 
-    // Else if a image exist
-    if (media.imageUrl) {
-        return (
-            <img
-                src={media.imageUrl}
-                alt="Question media"
-                className="mb-4 max-w-full object-contain rounded"
-            />
-        );
-    }
+  // Else if a image exist
+  if (media.imageUrl) {
+    return (
+      <img
+        src={media.imageUrl}
+        alt="Question media"
+        className="mb-4 max-w-full object-contain rounded"
+      />
+    );
+  }
   
-    return null;
+  return null;
 }
 
   
 function PlaySessionPage() {
-    const { sessionId } = useParams();
-    const { games } = useGames();
-    const playerId = localStorage.getItem(`player_${sessionId}`);
+  const { sessionId } = useParams();
+  const { games } = useGames();
+  const playerId = localStorage.getItem(`player_${sessionId}`);
 
-    // 1. Status polling
-    const [hasStarted, setHasStarted] = useState(false);
-    const [loadingStatus, setLoadingStatus] = useState(true);
+  // 1. Status polling
+  const [hasStarted, setHasStarted] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState(true);
 
-    // 2. Question polling
-    const [question, setQuestion] = useState(null);
-    const [sessionEnded, setSessionEnded] = useState(false);
+  // 2. Question polling
+  const [question, setQuestion] = useState(null);
+  const [sessionEnded, setSessionEnded] = useState(false);
 
-    // 3. Track history of asked questions
-    const [askedQuestions, setAskedQuestions] = useState([]);
+  // 3. Track history of asked questions
+  const [askedQuestions, setAskedQuestions] = useState([]);
 
-    //4. Selection state: null until a question arrives, then [] or a number
-    const [selected, setSelected] = useState(null);
+  //4. Selection state: null until a question arrives, then [] or a number
+  const [selected, setSelected] = useState(null);
 
-    // 5. Timer + correct‐answer state
-    const [remainingTime, setRemainingTime] = useState(0);
-    const [correctAnswersArr, setCorrectAnswersArr] = useState(null);
+  // 5. Timer + correct‐answer state
+  const [remainingTime, setRemainingTime] = useState(0);
+  const [correctAnswersArr, setCorrectAnswersArr] = useState(null);
 
-    // 6. Immediate correctness & points for each question
-    const [isCorrect, setIsCorrect] = useState(null);  // null until checked, then true/false
-    const [earnedPoints, setEarnedPoints] = useState(0);
+  // 6. Immediate correctness & points for each question
+  const [isCorrect, setIsCorrect] = useState(null);  // null until checked, then true/false
+  const [earnedPoints, setEarnedPoints] = useState(0);
 
-    // 7. Final results once sessionEnded, fetch this from the server:
-    const [results, setResults] = useState(null);
-    const [loadingResults, setLoadingResults] = useState(false);
+  // 7. Final results once sessionEnded, fetch this from the server:
+  const [results, setResults] = useState(null);
+  const [loadingResults, setLoadingResults] = useState(false);
 
-    // fetch current game to get if advance scoring system is on for current game
-    const game = Object.values(games).find(g => String(g.prevSessionId) === sessionId);
-    const useAdvancedScoring = !!game.useAdvancedScoring;
+  // fetch current game to get if advance scoring system is on for current game
+  const game = Object.values(games).find(g => String(g.prevSessionId) === sessionId);
+  const useAdvancedScoring = !!game.useAdvancedScoring;
 
-    // Poll /status
-    useEffect(() => {
-        // Don’t poll status once session has ended
-        if (!playerId || sessionEnded) return;
+  // Poll /status
+  useEffect(() => {
+    // Don’t poll status once session has ended
+    if (!playerId || sessionEnded) return;
 
-        let cancelled = false;
+    let cancelled = false;
         
-        const checkStatus = async () => {
-            try {
-                const res = await axios.get(
-                    `http://localhost:5005/play/${playerId}/status`
+    const checkStatus = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5005/play/${playerId}/status`
+        );
+
+        if (!cancelled) setHasStarted(res.data.started);
+      } catch (err) {
+        const msg = err.response.data.error;
+
+        if (msg === "Session ID is not an active session") {
+          if (!cancelled) setSessionEnded(true);
+          return;
+        }
+      } finally {
+        if (!cancelled) setLoadingStatus(false);
+      }
+    };
+
+    checkStatus();
+    const iv = setInterval(checkStatus, 1000);
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
+  }, [playerId, sessionEnded]);
+
+  // Poll /question once started
+  useEffect(() => {
+    if (!hasStarted || !playerId || sessionEnded) return;
+    let cancelled = false;
+
+    const fetchQuestion = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:5005/play/${playerId}/question`
+        );
+
+        const q = res.data.question;
+
+        if (!cancelled) {
+          setQuestion(prev => {
+            if (!prev || prev.isoTimeLastQuestionStarted !== q.isoTimeLastQuestionStarted) {
+              setAskedQuestions(prevList => {
+                // Check if it's already in the list
+                const exists = prevList.some(
+                  existing => existing.isoTimeLastQuestionStarted === 
+                    q.isoTimeLastQuestionStarted
                 );
-                if (!cancelled) setHasStarted(res.data.started);
-            } catch (err) {
-                const msg = err.response.data.error;
 
-                if (msg === "Session ID is not an active session") {
-                    if (!cancelled) setSessionEnded(true);
-                    return;
-                }
-            } finally {
-                if (!cancelled) setLoadingStatus(false);
+                return exists ? prevList : [...prevList, q]; // add to pass list
+              }); 
+              return q; // update the current question
+
             }
-        };
 
-        checkStatus();
-        const iv = setInterval(checkStatus, 1000);
-        return () => {
-            cancelled = true;
-            clearInterval(iv);
-        };
-    }, [playerId, sessionEnded]);
+            return prev; // no change
+          });
+        }
+      } catch (err) {
+        const msg = err.response.data.error;
 
-    // Poll /question once started
-    useEffect(() => {
-        if (!hasStarted || !playerId || sessionEnded) return;
-        let cancelled = false;
+        if (msg === "Session ID is not an active session") {
+          if (!cancelled) setSessionEnded(true);
+          return;
+        }
 
-        const fetchQuestion = async () => {
-            try {
-                const res = await axios.get(
-                    `http://localhost:5005/play/${playerId}/question`
-                );
+        console.log('Question fetch failed', err);
+      }
+    };
 
-                const q = res.data.question;
+    fetchQuestion();
+    const iv = setInterval(fetchQuestion, 1000);
 
-                if (!cancelled) {
-                    setQuestion(prev => {
-                        if (!prev || prev.isoTimeLastQuestionStarted !== q.isoTimeLastQuestionStarted) {
-                            setAskedQuestions(prevList => {
-                                // Check if it's already in the list
-                                const exists = prevList.some(
-                                    existing => existing.isoTimeLastQuestionStarted === 
-                                    q.isoTimeLastQuestionStarted
-                                );
-                                return exists ? prevList : [...prevList, q];
-                            }); // add to pass list
-                            return q; // update the current question
-                        }
-                        return prev; // no change
-                    });
-                }
-            } catch (err) {
-                const msg = err.response.data.error;
-                if (msg === "Session ID is not an active session") {
-                    if (!cancelled) setSessionEnded(true);
-                    return;
-                }
-                    console.log('Question fetch failed', err);
-            }
-        };
+    return () => {
+      cancelled = true;
+      clearInterval(iv);
+    };
+  }, [hasStarted, playerId, sessionEnded]);
 
-        fetchQuestion();
-        const iv = setInterval(fetchQuestion, 1000);
+  // When the session ends, load the full results
+  useEffect(() => {
+    if (!sessionEnded) return;
 
-        return () => {
-            cancelled = true;
-            clearInterval(iv);
-        };
-    }, [hasStarted, playerId, sessionEnded]);
-
-    // When the session ends, load the full results
-    useEffect(() => {
-        if (!sessionEnded) return;
-
-        let cancelled = false;
-        setLoadingResults(true);
+    let cancelled = false;
+    setLoadingResults(true);
         
-        const fetchResults = async () => {
-            try {
-                const res = await axios.get(`http://localhost:5005/play/${playerId}/results`);
-                if (!cancelled) setResults(res.data);
-            } catch (err) {
-                console.log("Failed to fetch results", err);
-            } finally {
-                if (!cancelled) setLoadingResults(false);
-            }
-        };
+    const fetchResults = async () => {
+      try {
+        const res = await axios.get(`http://localhost:5005/play/${playerId}/results`);
 
-        fetchResults();
+        if (!cancelled) setResults(res.data);
+
+      } catch (err) {
+        console.log("Failed to fetch results", err);
+      } finally {
+        if (!cancelled) setLoadingResults(false);
+      }
+    };
+
+    fetchResults();
     
-        return () => {
-          cancelled = true;
-        };
-    }, [sessionEnded, playerId]);
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionEnded, playerId]);
   
 
     // Reset selection, timer, correct answers, correctness on new question
