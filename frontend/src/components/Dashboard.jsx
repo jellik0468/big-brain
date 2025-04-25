@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGames } from './context/useGames';
 import axios from 'axios';
 import Modal from './Modal';
+import Button from './MyButton'
 
 import { useNavigate } from "react-router-dom"
 
@@ -154,16 +155,16 @@ function Dashboard() {
         <div className='border-b'>
           <div className="flex items-center justify-between mx-10 mt-10 pb-4">
             <h2 className="text-3xl font-semibold text-gray-800">Dashboard</h2>
-            <button
+            <Button
+              variant="primary"
               aria-label="Add a new game"
-              className="px-4 py-2 bg-blue-900 text-white rounded hover:bg-blue-600 transition"
               onClick={() => {
                 setStep('confirm');
                 setOpenAddGame(true);
               }}
             >
               Add Game
-            </button>
+            </Button>
 
           </div>
 
@@ -175,7 +176,7 @@ function Dashboard() {
               aria-label={`Open game ${game.gameName} edit page`}
               key={game.gameId}
               className={`border rounded-xl p-4 shadow cursor-pointer hover:shadow-2xl
-              text-white ${game.active ? "bg-orange-700 hover:bg-orange-700" 
+              text-white ${game.active ? "bg-emerald-700 hover:bg-emerald-900" 
               : "bg-sky-800 hover:bg-sky-900"}`}
               onClick={() => navigate(`/game/${game.gameId}`)}
             >
@@ -191,8 +192,8 @@ function Dashboard() {
                   Game ID: {game.gameName}
                 </h2>
 
-                <button
-                  className='btn border rounded-xl p-3 cursor-pointer hover:bg-red-400 hover:text-slate-900'
+                <Button
+                  variant="danger"
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedGameId(game.gameId);
@@ -202,7 +203,7 @@ function Dashboard() {
                   aria-label={`Delete game ${game.gameName}`}
                 >
                   Delete Game
-                </button>
+                </Button>
               </div>
 
               <p>Questions: {game.questions.length}</p>
@@ -212,8 +213,8 @@ function Dashboard() {
 
               <div className='flex gap-4 mt-3'>
                 {!game.active && (
-                  <button
-                    className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                  <Button
+                    variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedGameId(game.gameId);
@@ -223,13 +224,12 @@ function Dashboard() {
                     aria-label={`Start game ${game.gameName}`}
                   >
                     Start Game
-                  </button>
-
+                  </Button>
                 )}
 
                 {game.active && (
-                  <button
-                    className='btn border rounded-xl p-4 cursor-pointer hover:bg-gray-200 hover:text-slate-900'
+                  <Button
+                    variant="outline"
                     onClick={(e) => {
                       e.stopPropagation();
                       setSelectedGameId(game.gameId);
@@ -239,7 +239,7 @@ function Dashboard() {
                     aria-label={`Stop game ${game.gameName}`}
                   >
                     Stop Game
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -320,14 +320,17 @@ function Dashboard() {
                 
             {/* Action buttons */}
             <div className="flex flex-col gap-2">
-              <button
-                className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
+              <Button
+                variant="primary"
+                fullWidth
                 onClick={handleCreateGame}
               >
                 Create
-              </button>
-              <button
-                className="w-full bg-gray-200 text-gray-800 rounded-md py-2 font-medium hover:bg-gray-300 transition"
+              </Button>
+
+              <Button
+                variant="default"
+                fullWidth
                 onClick={() => {
                   setStep('confirm');
                   setUploadedGame(null);
@@ -335,7 +338,7 @@ function Dashboard() {
                 }}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </div>
         ) : step === 'finishAddGame' ? (
@@ -343,8 +346,8 @@ function Dashboard() {
             <p className="font-semibold text-lg text-gray-800 mb-4">
               Game has been added!
             </p>
-            <button
-              className="w-full bg-blue-600 text-white rounded-md py-2 font-medium hover:bg-blue-700 transition"
+            <Button
+              variant='primary'
               onClick={() => {
                 setStep('confirm');
                 setUploadedGame(null);
@@ -352,8 +355,8 @@ function Dashboard() {
                 setOpenAddGame(false);
               }}
             >
-              OK
-            </button>
+                OK
+            </Button>
           </div>
         ) : null}
       </Modal>
@@ -371,28 +374,32 @@ function Dashboard() {
         {step === 'confirm' ? (
           <>
             <div className="text-center w-56">
-              <h3 className="text-lg font-black text-red-800">Are you sure you want to delete this game</h3>
+              <h3 className="text-lg font-black text-red-800 mb-5">Are you sure you want to delete this game</h3>
             </div>
 
             <div className='flex justify-between gap-2'>
-              <button className="btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                onClick={handleDeleteGame}>
+              <Button
+                variant="danger"
+                fullWidth
+                onClick={handleDeleteGame}
+              >
                 Delete
-              </button>
-              <button
-                className="btn btn-light w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400"
-                onClick={() => {setOpenDeleteGame(false)}}
+              </Button>
+
+              <Button
+                variant="default"
+                fullWidth
+                onClick={() => setOpenDeleteGame(false)}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           </>
         ) : step === 'finishDelete' ? (
           <>
             <div className='text-center'>
               <p className='font-semibold text-lg'> Game have been deleted!</p>
-              <button 
-                className='btn w-full border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'
+              <Button variant='primary'
                 onClick={() => {
                   setStep('confirm');
                   setSelectedGameId(null);
@@ -400,7 +407,7 @@ function Dashboard() {
                 }}
               >
                 OK
-              </button>
+              </Button>
             </div>
           </>
         ) : null }
@@ -421,15 +428,15 @@ function Dashboard() {
           <>
             <p>Are you sure you want to start the game?</p>
             <div className='flex gap-4 mt-3 justify-center'>
-              <button onClick={generateSessionCode} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
-                mt-3 cursor-pointer hover:bg-zinc-400'>
+              <Button variant='primary'
+                onClick={generateSessionCode}>
                 Yes
-              </button>
+              </Button>
 
-              <button onClick={() => setOpenStartGame(false)} className='btn p-3 pr-5 pl-5
-                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+              <Button variant='primary'
+                onClick={() => setOpenStartGame(false)}>
                 No
-              </button>
+              </Button>
             </div>
           </>
         ) : step === 'session' && sessionId ? (
@@ -440,48 +447,47 @@ function Dashboard() {
               <p className='mt-2'>Session Code:</p>
               <h2 className='text-2l font-bold tracking-wider mt-1'>{sessionId}</h2>
 
-              <button
-                className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
+              <Button
+                variant="outline"
+                fullWidth
                 onClick={() => {
                   const link = `${window.location.origin}/join/${sessionId}`;
                   navigator.clipboard.writeText(link);
-                  setCopied('true');
+                  setCopied(true);
                 }}
-                aria-label="Copy join link to clipboard"
-                aria-live="assertive"
               >
                 Copy Join Link
-              </button>
+              </Button>
 
               {copied && (
                 <p className="mt-2 text-sm text-red-600 mb-3 font-medium" aria-live="assertive">
                   Link copied to clipboard!
                 </p>
               )}
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-700 mt-5">
                 Manage your past game sessions from the admin panel.
               </p>
-              <button
-                className="btn w-full border rounded-md mt-1 cursor-pointer hover:bg-zinc-400"
-                onClick={() => {
-                  navigate(`/session/${sessionId}`);
-                }}
+              <Button
+                variant="outline"
+                fullWidth
+                onClick={() => navigate(`/session/${sessionId}`)}
+                className='mb-5'
               >
                 Go to Admin panel for this session
-              </button>
+              </Button>
 
-              <button
-                className='btn w-full border rounded -md mt-4 cursor-pointer hover:bg-zinc-400'
+              <Button
+                variant="default"
+                fullWidth
                 onClick={() => {
-                  // CleanUp
-                  setOpenStartGame(false)
+                  setOpenStartGame(false);
                   setSessionId(null);
                   setCopied(false);
-                  setStep('confirm')
+                  setStep('confirm');
                 }}
               >
                 Close
-              </button>
+              </Button>
             </div>
           </div>
         ) : step === 'alreadyActive' ? (
@@ -490,8 +496,7 @@ function Dashboard() {
             <p className="mt-2 text-sm text-gray-600">
               This game already has an active session. You can&apos;t start another one until it&apos;s ended.
             </p>
-            <button
-              className="btn w-full border rounded-md mt-4 cursor-pointer hover:bg-zinc-400"
+            <Button variant='primary'
               onClick={() => {
                 setOpenStartGame(false);
                 setStep('confirm');
@@ -499,7 +504,7 @@ function Dashboard() {
               }}
             >
               Close
-            </button>
+            </Button>
           </div>
         ) : null
         }
@@ -514,30 +519,26 @@ function Dashboard() {
           <>
             <p>Are you sure you want to stop the game?</p>
             <div className='flex gap-4 mt-3 justify-center'>
-              <button onClick={handleStopGame} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
-                mt-3 cursor-pointer hover:bg-zinc-400'>
-              Yes
-              </button>
+              <Button onClick={handleStopGame} variant='primary'>
+                Yes
+              </Button>
 
-              <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
-                  border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+              <Button onClick={() => setOpenStopGame(false)}  variant='primary'>
                 No
-              </button>
+              </Button>
             </div>
           </>
         ) : step === 'gameStopped' ? (
           <div>
             <p>The game has ended, would you like to view the results?</p>
             <div className='flex gap-4 mt-3 justify-center'>
-              <button onClick={handleViewResult} className='btn btn-light p-3 pr-5 pl-5 border rounded-md
-                mt-3 cursor-pointer hover:bg-zinc-400'>
+              <Button variant='primary' onClick={handleViewResult}>
                 Yes
-              </button>
-              
-              <button onClick={() => setOpenStopGame(false)} className='btn p-3 pr-5 pl-5
-                border rounded-md mt-3 cursor-pointer hover:bg-zinc-400'>
+              </Button>
+
+              <Button variant='primary' onClick={() => setOpenStopGame(false)}>
                 No
-              </button>
+              </Button>
             </div>
           </div>
         ) : null
